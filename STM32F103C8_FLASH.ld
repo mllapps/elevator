@@ -41,7 +41,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 20K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 64K
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 60K
+PARAMS (x)      : ORIGIN = 0x08063DEC, LENGTH = 1K
 }
 
 /* Define output sections */
@@ -71,6 +72,14 @@ SECTIONS
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
+
+  .params :
+  {
+  *(.params.VERSION_NUMBER)
+  *(.params.CRC)
+  *(.params.BUILD_ID)
+  *(.params*);
+  } > PARAMS
 
   /* Constant data goes into FLASH */
   .rodata :
