@@ -43,12 +43,11 @@
 #include "usart.h"
 #include "gpio.h"
 
+/* USER CODE BEGIN Includes */
 #include "app.h"
 #include "stepper.h"
 #include "btn.h"
 #include "eeprom.h"
-/* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -102,10 +101,6 @@ int main(void)
   MX_DMA_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  EE_Init();
-  stp_init();
-  btn_init();
-  app_init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */

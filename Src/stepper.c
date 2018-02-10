@@ -171,6 +171,7 @@ void stp_requ(stpCmd_t cmd)
 	stpData.cmd.nxt = cmd;
 }
 
+
 //__HAL_TIM_SET_AUTORELOAD(&htim4, mtrData.period);
 
 
