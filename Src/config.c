@@ -9,9 +9,11 @@
  *
  * @brief Configuration settings implementation
  */
+#include "config.h"
 
 /* Virtual address defined by the user: 0xFFFF value is prohibited */
-uint16_t VirtAddVarTab[NumbOfVar] = {
-		APP_LONGPRESS_TIME_VADD,
-		APP_POWER_OFF_VADD
+uint16_t VirtAddVarTab[] = {
+		CFG_LONGPRESS_TIME_VADD,
+		CFG_POWER_OFF_VADD,
+		0x0000	/* End of the list */
 };

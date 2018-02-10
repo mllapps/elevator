@@ -14,6 +14,7 @@
 #include "eeprom.h"
 #include "btn.h"
 #include "config.h"
+#include "stepper.h"
 
 typedef enum appState_e {
 	APP_STATE_IDLE			= 0,
@@ -97,14 +98,14 @@ void app_init()
 
 	/* Read the values from the persistent memory */
 	ret = EE_ReadVariableOrDefault(
-			VirtAddVarTab[APP_LONGPRESS_TIME_IDX],
+			VirtAddVarTab[CFG_LONGPRESS_TIME_IDX],
 			(uint16_t*)&appData.longpressTime,
-			APP_LONGPRESS_TIME_DEFAULT);
+			CFG_LONGPRESS_TIME_DEFAULT);
 
 	ret = EE_ReadVariableOrDefault(
-			VirtAddVarTab[APP_POWER_OFF_IDX],
+			VirtAddVarTab[CFG_POWER_OFF_IDX],
 			(uint16_t*)&powerOff,
-			APP_POWER_OFF_DEFAULT);
+			CFG_POWER_OFF_DEFAULT);
 
 	appData.powerOffTimeMs = 1000 * 60 * powerOff;
 
@@ -148,6 +149,9 @@ void app_handler()
 
 void app_stateIdle(void)
 {
+	uint32_t curTimeStamp;
+	btnRc_t ret;
+
 	/* Perform button action */
 	if ( (ret = btn_isPressed() ) == BTN_PRESSED_SHORT)
 	{
@@ -186,14 +190,15 @@ void app_stateIdle(void)
 void app_stateDriveUp(void)
 {
 	/**
-	 * @todo Check if the number of steps will be arived
+	 * @todo Check if the number of steps will be arrived
 	 */
+
 }
 
 
 void app_stateDriveDown(void)
 {
 	/**
-	 * @todo Check if the number of steps will be arived
+	 * @todo Check if the number of steps will be arrived
 	 */
 }

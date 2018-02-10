@@ -13,6 +13,20 @@
 #ifndef STEPPER_H_
 #define STEPPER_H_
 
+#include "stm32f1xx_hal.h"
 
+typedef enum stpCmd_e {
+	STP_CMD_NONE		= 0,
+	STP_CMD_STOP		= 1,
+	STP_CMD_ARRIVED		= 2,
+	STP_CMD_DRIVE_UP	= 3,
+	STP_CMD_DRIVE_DOWN	= 4
+} stpCmd_t;
+
+void stp_init(void);
+void stp_deinit(void);
+void stp_handler(void);
+
+void stp_requ(stpCmd_t cmd);
 
 #endif /* STEPPER_H_ */

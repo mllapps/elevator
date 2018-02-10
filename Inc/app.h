@@ -16,11 +16,6 @@
 #include "stm32f1xx_hal.h"
 
 /**
- * Avoid "unused parameter" warnings
- */
-#define UNUSED(x) (void)x;
-
-/**
  * Fixed interval to trigger the button
  */
 #define APP_BUTTON_TRIGGER_INTERVAL			(10)

@@ -43,6 +43,10 @@
 #include "usart.h"
 #include "gpio.h"
 
+#include "app.h"
+#include "stepper.h"
+#include "btn.h"
+#include "eeprom.h"
 /* USER CODE BEGIN Includes */
 
 /* USER CODE END Includes */
@@ -98,6 +102,10 @@ int main(void)
   MX_DMA_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
+  EE_Init();
+  stp_init();
+  btn_init();
+  app_init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -106,12 +114,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  /* Run the application handler */
+	  app_handler();
 
+	  /* Stepper motor handler */
+	  stp_handler();
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
 
   }
+
+  stp_deinit();
   /* USER CODE END 3 */
 
 }

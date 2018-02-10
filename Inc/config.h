@@ -13,23 +13,25 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include <inttypes.h>
+
 /**
  * Longpress parameters
  */
-#define APP_LONGPRESS_TIME_DEFAULT			(1000)
-#define APP_LONGPRESS_TIME_MAX				(5000)
-#define APP_LONGPRESS_TIME_MIN				(500)
-#define APP_LONGPRESS_TIME_VADD				(0x1111)
-#define APP_LONGPRESS_TIME_IDX				(0)
+#define CFG_LONGPRESS_TIME_DEFAULT			(1000)
+#define CFG_LONGPRESS_TIME_MAX				(5000)
+#define CFG_LONGPRESS_TIME_MIN				(500)
+#define CFG_LONGPRESS_TIME_VADD				(0x1111)
+#define CFG_LONGPRESS_TIME_IDX				(0)
 
 /**
  * Automatic power off parameters
  */
-#define APP_POWER_OFF_DEFAULT				(30)
-#define APP_POWER_OFF_MAX					(120)
-#define APP_POWER_OFF_MIN					(1)
-#define APP_POWER_OFF_VADD					(0x2222)
-#define APP_POWER_OFF_IDX					(1)
+#define CFG_POWER_OFF_DEFAULT				(30)
+#define CFG_POWER_OFF_MAX					(120)
+#define CFG_POWER_OFF_MIN					(1)
+#define CFG_POWER_OFF_VADD					(0x2222)
+#define CFG_POWER_OFF_IDX					(1)
 
 /**
  * Number of steps from floor 0 to 1
@@ -50,6 +52,6 @@
 #define CFG_FLOOR_1_2_TICKS_IDX				(3)
 
 
-extern uint16_t VirtAddVarTab[NumbOfVar];
+extern uint16_t VirtAddVarTab[];
 
 #endif /* CONFIG_H_ */
