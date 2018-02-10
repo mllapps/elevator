@@ -97,12 +97,12 @@ void app_init()
 	HAL_FLASH_Unlock();
 
 	/* Read the values from the persistent memory */
-	ret = EE_ReadVariableOrDefault(
+	ret = ee_readVariableOrDefault(
 			VirtAddVarTab[CFG_LONGPRESS_TIME_IDX],
 			(uint16_t*)&appData.longpressTime,
 			CFG_LONGPRESS_TIME_DEFAULT);
 
-	ret = EE_ReadVariableOrDefault(
+	ret = ee_readVariableOrDefault(
 			VirtAddVarTab[CFG_POWER_OFF_IDX],
 			(uint16_t*)&powerOff,
 			CFG_POWER_OFF_DEFAULT);

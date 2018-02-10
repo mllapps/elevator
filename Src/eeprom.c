@@ -50,7 +50,7 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data);
   * @retval - Flash error code: on write Flash error
   *         - FLASH_COMPLETE: on success
   */
-uint16_t EE_Init(void)
+uint16_t ee_init(void)
 {
   uint16_t PageStatus0 = 6, PageStatus1 = 6;
   uint16_t VarIdx = 0;
@@ -122,7 +122,7 @@ uint16_t EE_Init(void)
           if (VarIdx != x)
           {
             /* Read the last variables' updates */
-            ReadStatus = EE_ReadVariable(VirtAddVarTab[VarIdx], &DataVar);
+            ReadStatus = ee_readVariable(VirtAddVarTab[VarIdx], &DataVar);
             /* In case variable corresponding to the virtual address was found */
             if (ReadStatus != 0x1)
             {
@@ -214,7 +214,7 @@ uint16_t EE_Init(void)
           if (VarIdx != x)
           {
             /* Read the last variables' updates */
-            ReadStatus = EE_ReadVariable(VirtAddVarTab[VarIdx], &DataVar);
+            ReadStatus = ee_readVariable(VirtAddVarTab[VarIdx], &DataVar);
             /* In case variable corresponding to the virtual address was found */
             if (ReadStatus != 0x1)
             {
@@ -269,7 +269,7 @@ uint16_t EE_Init(void)
   *           - 1: if the variable was not found
   *           - NO_VALID_PAGE: if no valid page was found.
   */
-uint16_t EE_ReadVariable(uint16_t VirtAddress, uint16_t* Data)
+uint16_t ee_readVariable(uint16_t VirtAddress, uint16_t* Data)
 {
   uint16_t ValidPage = PAGE0;
   uint16_t AddressValue = 0x5555, ReadStatus = 1;
@@ -332,16 +332,16 @@ uint16_t EE_ReadVariable(uint16_t VirtAddress, uint16_t* Data)
   *           - 1: if the variable was not found
   *           - NO_VALID_PAGE: if no valid page was found.
   */
-uint16_t EE_ReadVariableOrDefault(uint16_t VirtAddress, uint16_t* Data, const uint16_t dataDefault)
+uint16_t ee_readVariableOrDefault(uint16_t VirtAddress, uint16_t* Data, const uint16_t dataDefault)
 {
 	uint16_t ret = 0;
 
-	if( (ret = EE_ReadVariable(VirtAddress, Data) ) == 1) {
-		if ( (ret = EE_WriteVariable(VirtAddress, dataDefault)) != 0) {
+	if( (ret = ee_readVariable(VirtAddress, Data) ) == 1) {
+		if ( (ret = ee_writeVariable(VirtAddress, dataDefault)) != 0) {
 			printf("failed to write default value at 0x%04x", VirtAddress);
 		}
 
-		if( (ret = EE_ReadVariable(VirtAddress, Data) ) != 0) {
+		if( (ret = ee_readVariable(VirtAddress, Data) ) != 0) {
 			printf("failed to read default value at 0x%04x", VirtAddress);
 		}
 	}
@@ -359,7 +359,7 @@ uint16_t EE_ReadVariableOrDefault(uint16_t VirtAddress, uint16_t* Data, const ui
   *           - NO_VALID_PAGE: if no valid page was found
   *           - Flash error code: on write Flash error
   */
-uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data)
+uint16_t ee_writeVariable(uint16_t VirtAddress, uint16_t Data)
 {
   uint16_t Status = 0;
 
@@ -609,7 +609,7 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
     if (VirtAddVarTab[VarIdx] != VirtAddress)  /* Check each variable except the one passed as parameter */
     {
       /* Read the other last variable updates */
-      ReadStatus = EE_ReadVariable(VirtAddVarTab[VarIdx], &DataVar);
+      ReadStatus = ee_readVariable(VirtAddVarTab[VarIdx], &DataVar);
       /* In case variable corresponding to the virtual address was found */
       if (ReadStatus != 0x1)
       {
@@ -643,16 +643,16 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
   return FlashStatus;
 }
 
-uint16_t EE_WriteVariableIfDifferent(uint16_t VirtAddress, uint16_t Data)
+uint16_t ee_writeVariableIfDifferent(uint16_t VirtAddress, uint16_t Data)
 {
 	uint16_t dat;
 	uint16_t ret;
 
 	/* Check if the values should be saved */
-	ret = EE_ReadVariable(VirtAddress, &dat);
+	ret = ee_readVariable(VirtAddress, &dat);
 
 	if(ret == 0 && dat != Data) {
-		ret = EE_WriteVariable(VirtAddress, Data);
+		ret = ee_writeVariable(VirtAddress, Data);
 	}
 
 	return ret;

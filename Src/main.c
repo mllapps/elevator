@@ -103,7 +103,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   btn_init();
-  EE_Init();
+  ee_init();
   stp_init();
   app_init();
   /* USER CODE END 2 */

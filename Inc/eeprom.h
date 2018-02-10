@@ -27,12 +27,6 @@
 #include "stm32f1xx.h"
 
 /* Exported constants --------------------------------------------------------*/
-/* Define the STM32F10Xxx Flash page size depending on the used STM32 device */
-#if defined (STM32F10X_LD) || defined (STM32F10X_MD)
-  #define PAGE_SIZE  (uint16_t)0x400  /* Page size = 1KByte */
-#elif defined (STM32F10X_HD) || defined (STM32F10X_CL)
-  #define PAGE_SIZE  (uint16_t)0x800  /* Page size = 2KByte */
-#endif
 
 /* EEPROM start address in Flash */
 #define EEPROM_START_ADDRESS    ((uint32_t)0x0800F800) /* EEPROM emulation start address:
@@ -70,11 +64,11 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-uint16_t EE_Init(void);
-uint16_t EE_ReadVariable(uint16_t VirtAddress, uint16_t* Data);
-uint16_t EE_ReadVariableOrDefault(uint16_t VirtAddress, uint16_t* Data, const uint16_t dataDefault);
-uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data);
-uint16_t EE_WriteVariableIfDifferent(uint16_t VirtAddress, uint16_t Data);
+uint16_t ee_init(void);
+uint16_t ee_readVariable(uint16_t VirtAddress, uint16_t* Data);
+uint16_t ee_readVariableOrDefault(uint16_t VirtAddress, uint16_t* Data, const uint16_t dataDefault);
+uint16_t ee_writeVariable(uint16_t VirtAddress, uint16_t Data);
+uint16_t ee_writeVariableIfDifferent(uint16_t VirtAddress, uint16_t Data);
 
 #endif /* __EEPROM_H */
 
