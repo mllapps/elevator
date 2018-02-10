@@ -102,11 +102,15 @@ int main(void)
   MX_TIM3_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  btn_init();
+  EE_Init();
+  stp_init();
+  app_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  stp_requ(STP_CMD_DRIVE_UP, 1000);
   while (1)
   {
 	  /* Run the application handler */

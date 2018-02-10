@@ -27,6 +27,6 @@ void stp_init(void);
 void stp_deinit(void);
 void stp_handler(void);
 
-void stp_requ(stpCmd_t cmd);
+void stp_requ(stpCmd_t cmd, uint32_t steps);
 
 #endif /* STEPPER_H_ */

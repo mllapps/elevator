@@ -71,6 +71,9 @@ void stp_init(void)
 	stpData.period.steps = 10;
 
 	stp_setDecayMode();
+
+	HAL_TIM_OC_Init(&htim3);
+	__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 }
 
 void stp_deinit(void)
@@ -102,8 +105,10 @@ void stp_handler(void)
 		/* Enable sleep mode */
 		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
 
+		__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
+
 		if(stpData.cmd.active == STP_CMD_DRIVE_UP || stpData.cmd.active == STP_CMD_DRIVE_DOWN) {
-			stpData.fsm.nxState = STP_STATE_RAMP_UP;
+			stpData.fsm.nxState = STP_STATE_RAMP_START;
 		}
 		break;
 
@@ -167,6 +172,16 @@ void stp_handler(void)
 	default:
 		break;
 	}
+
+	/* Go to next state if requested */
+	if(stpData.fsm.state != stpData.fsm.nxState) {
+		stpData.fsm.state = stpData.fsm.nxState;
+	}
+
+	/* New command requested */
+	if(stpData.cmd.active != stpData.cmd.nxt) {
+		stpData.cmd.active = stpData.cmd.nxt;
+	}
 }
 
 void stp_setDecayMode(void)
@@ -177,13 +192,16 @@ void stp_setDecayMode(void)
 	HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_SET);
 }
 
-void stp_requ(stpCmd_t cmd)
+void stp_requ(stpCmd_t cmd, uint32_t steps)
 {
 	stpData.cmd.nxt = cmd;
+	stpData.steps.target = steps;
 }
 
 /**
+ * Interrupt for the stepper motor PIN
  *
+ * It will ramp up the frequency and toggle the GPIO pin
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
@@ -198,6 +216,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				stpData.fsm.nxState = STP_STATE_RAMP_STABLE;
 			}
 		}
+
+		/* Toggle the gpio pin */
+		HAL_GPIO_TogglePin(MTR_STEP_GPIO_Port, MTR_STEP_Pin);
 	}
 }
 
