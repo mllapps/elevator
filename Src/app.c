@@ -118,7 +118,6 @@ void app_init()
 void app_handler()
 {
 	uint32_t curTimeStamp;
-	btnRc_t ret;
 
 	/* Trigger the button handler */
 	if( (curTimeStamp = HAL_GetTick()) - appData.btnTimestamp >= APP_BUTTON_TRIGGER_INTERVAL) {

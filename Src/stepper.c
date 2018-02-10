@@ -17,10 +17,10 @@
 typedef enum {
 	STP_STATE_IDLE					= 0,
 
-	STP_STATE_RAMP_START				= 1,
-	STP_STATE_RAMP_UP					= 2,
-	STP_STATE_RAMP_STABLE				= 3,
-	STP_STATE_ARRIVED					= 4,
+	STP_STATE_RAMP_START			= 1,
+	STP_STATE_RAMP_UP				= 2,
+	STP_STATE_RAMP_STABLE			= 3,
+	STP_STATE_ARRIVED				= 4,
 
 	STP_STATE_FAULT					= 10,
 	STP_STATE_FAULT_INVALID_DIR		= 11
@@ -42,6 +42,13 @@ typedef struct stpData_s {
 		uint32_t cnt;
 		uint32_t target;
 	}steps;
+
+	struct {
+		uint32_t val;
+		uint32_t max;
+		uint32_t steps;
+	} period;
+
 } stpData_t;
 
 static stpData_t stpData;
@@ -58,6 +65,10 @@ void stp_init(void)
 
 	stpData.cmd.active =
 	stpData.cmd.nxt = STP_CMD_NONE;
+
+	stpData.period.val = 0;
+	stpData.period.max = 0;
+	stpData.period.steps = 10;
 
 	stp_setDecayMode();
 }
@@ -171,7 +182,24 @@ void stp_requ(stpCmd_t cmd)
 	stpData.cmd.nxt = cmd;
 }
 
+/**
+ *
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim->Instance == TIM3) {
 
-//__HAL_TIM_SET_AUTORELOAD(&htim4, mtrData.period);
+		if(stpData.fsm.state == STP_STATE_RAMP_UP) {
+			if(stpData.period.val > stpData.period.max) {
+
+				stpData.period.val -= stpData.period.steps;
+				__HAL_TIM_SET_AUTORELOAD(&htim3, stpData.period.val);
+			}else {
+				stpData.fsm.nxState = STP_STATE_RAMP_STABLE;
+			}
+		}
+	}
+}
+
 
 
