@@ -65,6 +65,13 @@ void stp_init(void)
 
 	stp_setDecayMode();
 
+	HAL_GPIO_WritePin(MTR_nRESET_GPIO_Port, MTR_nRESET_Pin, GPIO_PIN_RESET);
+
+	HAL_GPIO_WritePin(MTR_nRESET_GPIO_Port, MTR_nRESET_Pin, GPIO_PIN_SET);
+
+	/* Disable sleep mode */
+	HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_SET);
+
 	HAL_TIM_OC_Init(&htim3);
 	__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 }
@@ -95,9 +102,6 @@ void stp_handler(void)
 		/* Disable the driver */
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
 
-		/* Enable sleep mode */
-		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
-
 		__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 
 		if(stpData.cmd.active == STP_CMD_DRIVE_UP || stpData.cmd.active == STP_CMD_DRIVE_DOWN) {
@@ -127,7 +131,7 @@ void stp_handler(void)
 		stpData.period.val = 65535;
 		stpData.period.max = 65535/2;
 
-		/* Enable the motor driver */
+		/* Enable motor driver  */
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_RESET);
 
 		/* Enable the timer */
@@ -188,9 +192,9 @@ void stp_handler(void)
 void stp_setDecayMode(void)
 {
 	/* Setup the decay mode */
-	HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
 }
 
 void stp_requ(stpCmd_t cmd, uint32_t steps)

@@ -53,18 +53,10 @@
 #define LD1_OUT_GPIO_Port GPIOC
 #define SW1_IN_Pin GPIO_PIN_0
 #define SW1_IN_GPIO_Port GPIOA
-#define MTR_MS1_Pin GPIO_PIN_3
-#define MTR_MS1_GPIO_Port GPIOA
-#define MTR_MS2_Pin GPIO_PIN_4
-#define MTR_MS2_GPIO_Port GPIOA
-#define MTR_MS3_Pin GPIO_PIN_5
-#define MTR_MS3_GPIO_Port GPIOA
 #define MTR_STEP_Pin GPIO_PIN_0
 #define MTR_STEP_GPIO_Port GPIOB
 #define MTR_DIR_Pin GPIO_PIN_1
 #define MTR_DIR_GPIO_Port GPIOB
-#define MTR_nENABLE_Pin GPIO_PIN_2
-#define MTR_nENABLE_GPIO_Port GPIOB
 #define MTR_nSLEEP_Pin GPIO_PIN_10
 #define MTR_nSLEEP_GPIO_Port GPIOB
 #define MTR_nRESET_Pin GPIO_PIN_11
@@ -73,6 +65,14 @@
 #define DBG_CLI_TX_GPIO_Port GPIOA
 #define DBG_CLI_RX_Pin GPIO_PIN_10
 #define DBG_CLI_RX_GPIO_Port GPIOA
+#define MTR_MS3_Pin GPIO_PIN_4
+#define MTR_MS3_GPIO_Port GPIOB
+#define MTR_MS2_Pin GPIO_PIN_5
+#define MTR_MS2_GPIO_Port GPIOB
+#define MTR_MS1_Pin GPIO_PIN_6
+#define MTR_MS1_GPIO_Port GPIOB
+#define MTR_nENABLE_Pin GPIO_PIN_7
+#define MTR_nENABLE_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**
