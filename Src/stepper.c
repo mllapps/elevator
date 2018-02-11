@@ -126,6 +126,14 @@ void stp_handler(void)
 			stpData.fsm.nxState = STP_STATE_FAULT_INVALID_DIR;
 		}
 
+		stpData.cmd.nxt =
+		stpData.cmd.active = STP_CMD_NONE;
+
+		stpData.steps.cnt = 0;
+
+		stpData.period.val = 65535;
+		stpData.period.max = 65535/2;
+
 		/* Enable the motor driver */
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_RESET);
 
@@ -143,10 +151,10 @@ void stp_handler(void)
 		/* Transitions */
 		if(stpData.cmd.active == STP_CMD_STOP)
 		{
-			stpData.fsm.state = STP_STATE_IDLE;
+			stpData.fsm.nxState = STP_STATE_IDLE;
 		}else if(stpData.steps.cnt >= stpData.steps.target)
 		{
-			stpData.fsm.state = STP_STATE_ARRIVED;
+			stpData.fsm.nxState = STP_STATE_ARRIVED;
 		}
 		break;
 	case STP_STATE_RAMP_STABLE:
@@ -154,10 +162,10 @@ void stp_handler(void)
 		/* Transitions */
 		if(stpData.cmd.active == STP_CMD_STOP)
 		{
-			stpData.fsm.state = STP_STATE_IDLE;
+			stpData.fsm.nxState = STP_STATE_IDLE;
 		}else if(stpData.steps.cnt >= stpData.steps.target)
 		{
-			stpData.fsm.state = STP_STATE_ARRIVED;
+			stpData.fsm.nxState = STP_STATE_ARRIVED;
 		}
 		break;
 
@@ -216,6 +224,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				stpData.fsm.nxState = STP_STATE_RAMP_STABLE;
 			}
 		}
+
+		stpData.steps.cnt++;
 
 		/* Toggle the gpio pin */
 		HAL_GPIO_TogglePin(MTR_STEP_GPIO_Port, MTR_STEP_Pin);
