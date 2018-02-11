@@ -23,10 +23,23 @@ typedef enum stpCmd_e {
 	STP_CMD_DRIVE_DOWN	= 4
 } stpCmd_t;
 
+typedef enum {
+	STP_STATE_IDLE					= 0,
+
+	STP_STATE_RAMP_START			= 1,
+	STP_STATE_RAMP_UP				= 2,
+	STP_STATE_RAMP_STABLE			= 3,
+	STP_STATE_ARRIVED				= 4,
+
+	STP_STATE_FAULT					= 10,
+	STP_STATE_FAULT_INVALID_DIR		= 11
+} stpState_t;
+
 void stp_init(void);
 void stp_deinit(void);
 void stp_handler(void);
 
 void stp_requ(stpCmd_t cmd, uint32_t steps);
+stpState_t stp_getState(void);
 
 #endif /* STEPPER_H_ */

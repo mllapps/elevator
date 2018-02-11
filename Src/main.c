@@ -110,7 +110,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  stp_requ(STP_CMD_DRIVE_UP, 1000);
   while (1)
   {
 	  /* Run the application handler */

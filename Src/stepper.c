@@ -14,18 +14,6 @@
 #include "tim.h"
 #include "time.h"
 
-typedef enum {
-	STP_STATE_IDLE					= 0,
-
-	STP_STATE_RAMP_START			= 1,
-	STP_STATE_RAMP_UP				= 2,
-	STP_STATE_RAMP_STABLE			= 3,
-	STP_STATE_ARRIVED				= 4,
-
-	STP_STATE_FAULT					= 10,
-	STP_STATE_FAULT_INVALID_DIR		= 11
-} stpState_t;
-
 typedef struct stpData_s {
 
 	struct {
@@ -54,6 +42,11 @@ typedef struct stpData_s {
 static stpData_t stpData;
 
 void stp_setDecayMode(void);
+
+stpState_t stp_getState(void)
+{
+	return stpData.fsm.state;
+}
 
 void stp_init(void)
 {
@@ -203,8 +196,12 @@ void stp_setDecayMode(void)
 void stp_requ(stpCmd_t cmd, uint32_t steps)
 {
 	stpData.cmd.nxt = cmd;
+
+	stpData.steps.cnt = 0;
 	stpData.steps.target = steps;
 }
+
+
 
 /**
  * Interrupt for the stepper motor PIN

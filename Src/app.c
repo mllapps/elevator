@@ -176,28 +176,37 @@ void app_stateIdle(void)
 	{
 	   btn_clearAll();
 
-	   HAL_GPIO_TogglePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin);
+		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_RESET);
 
 	   if(appData.floor.current == APP_FLOOR_2) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
 		   /** @todo drive down to floor 1 */
 		   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
+
+		   appData.floor.current = APP_FLOOR_1;
+		   appData.floor.last = APP_FLOOR_2;
 	   }else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
 		   /** @todo drive down to floor 0 */
 		   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level0_1);
+		   appData.floor.current = APP_FLOOR_0;
+		   appData.floor.last = APP_FLOOR_1;
 	   }else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
 		   /** @todo drive up to floor 2 */
 		   stp_requ(STP_CMD_DRIVE_UP, appData.floor.level1_2);
+		   appData.floor.current = APP_FLOOR_2;
+		   appData.floor.last = APP_FLOOR_1;
 	   }else if(appData.floor.current == APP_FLOOR_0) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
 		   /** @todo drive up to floor 1 */
 		   stp_requ(STP_CMD_DRIVE_UP, appData.floor.level0_1);
+		   appData.floor.current = APP_FLOOR_1;
+		   appData.floor.last = APP_FLOOR_0;
 	   }
 
 	}else if(ret == BTN_PRESSED_LONG) {
@@ -212,16 +221,22 @@ void app_stateIdle(void)
 
 void app_stateDriveUp(void)
 {
-	/**
-	 * @todo Check if the number of steps will be arrived
-	 */
+	stpState_t state;
 
+	if( (state = stp_getState() ) == STP_STATE_ARRIVED) {
+		appData.fsm.nxState = APP_STATE_IDLE;
+
+		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
+	}
 }
 
 
 void app_stateDriveDown(void)
 {
-	/**
-	 * @todo Check if the number of steps will be arrived
-	 */
+	stpState_t state;
+
+	if( (state = stp_getState() ) == STP_STATE_ARRIVED) {
+		appData.fsm.nxState = APP_STATE_IDLE;
+		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
+	}
 }
