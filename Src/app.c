@@ -53,12 +53,16 @@ typedef struct appData_s {
 	struct {
 		appFloor_t current;
 		appFloor_t last;
+
+		uint32_t level1_2;
+		uint32_t level0_1;
 	} floor;
 
 	struct {
 		appState_t state;
 		appState_t nxState;
 	} fsm;
+
 } appData_t;
 
 /**
@@ -108,6 +112,22 @@ void app_init()
 			CFG_POWER_OFF_DEFAULT);
 
 	appData.powerOffTimeMs = 1000 * 60 * powerOff;
+
+//	/* */
+//	ret = ee_readVariableOrDefault(
+//			VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
+//			(uint16_t*)&appData.floor.level0_1,
+//			CFG_FLOOR_0_1_TICKS_DEFAULT);
+//
+//	/* */
+//	ret = ee_readVariableOrDefault(
+//			VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
+//			(uint16_t*)&appData.floor.level1_2,
+//			CFG_FLOOR_1_2_TICKS_DEFAULT);
+
+
+	appData.floor.level0_1 = CFG_FLOOR_0_1_TICKS_DEFAULT;
+	appData.floor.level1_2 = CFG_FLOOR_1_2_TICKS_DEFAULT;
 
 	HAL_FLASH_Lock();
 }
@@ -162,18 +182,22 @@ void app_stateIdle(void)
 		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
 		   /** @todo drive down to floor 1 */
+		   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
 	   }else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
 		   /** @todo drive down to floor 0 */
+		   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level0_1);
 	   }else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
 		   /** @todo drive up to floor 2 */
+		   stp_requ(STP_CMD_DRIVE_UP, appData.floor.level1_2);
 	   }else if(appData.floor.current == APP_FLOOR_0) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
 		   /** @todo drive up to floor 1 */
+		   stp_requ(STP_CMD_DRIVE_UP, appData.floor.level0_1);
 	   }
 
 	}else if(ret == BTN_PRESSED_LONG) {
