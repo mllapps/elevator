@@ -53,6 +53,8 @@
 #define LD1_OUT_GPIO_Port GPIOC
 #define SW1_IN_Pin GPIO_PIN_0
 #define SW1_IN_GPIO_Port GPIOA
+#define SW2_IN_Pin GPIO_PIN_1
+#define SW2_IN_GPIO_Port GPIOA
 #define MTR_STEP_Pin GPIO_PIN_0
 #define MTR_STEP_GPIO_Port GPIOB
 #define MTR_DIR_Pin GPIO_PIN_1
