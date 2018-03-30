@@ -129,6 +129,9 @@ void app_init()
 	appData.floor.level0_1 = CFG_FLOOR_0_1_TICKS_DEFAULT;
 	appData.floor.level1_2 = CFG_FLOOR_1_2_TICKS_DEFAULT;
 
+	stp_setPeriodStartRamp(65535);
+	stp_setPeriodEndRamp(65535/3);
+
 	HAL_FLASH_Lock();
 }
 

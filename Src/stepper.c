@@ -33,6 +33,7 @@ typedef struct stpData_s {
 
 	struct {
 		uint32_t val;
+		uint32_t min;
 		uint32_t max;
 		uint32_t steps;
 	} period;
@@ -59,8 +60,9 @@ void stp_init(void)
 	stpData.cmd.active =
 	stpData.cmd.nxt = STP_CMD_NONE;
 
-	stpData.period.val = 0;
-	stpData.period.max = 0;
+	stpData.period.val =
+	stpData.period.min = 65535;
+	stpData.period.max = stpData.period.min/2;
 	stpData.period.steps = 10;
 
 	stp_setDecayMode();
@@ -128,8 +130,8 @@ void stp_handler(void)
 
 		stpData.steps.cnt = 0;
 
-		stpData.period.val = 65535;
-		stpData.period.max = 65535/2;
+		stpData.period.val = stpData.period.min;
+//		stpData.period.max = 65535/2;
 
 		/* Enable motor driver  */
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_RESET);
@@ -205,6 +207,15 @@ void stp_requ(stpCmd_t cmd, uint32_t steps)
 	stpData.steps.target = steps;
 }
 
+void stp_setPeriodStartRamp(uint16_t val)
+{
+	stpData.period.min = val;
+}
+
+void stp_setPeriodEndRamp(uint16_t val)
+{
+	stpData.period.max = val;
+}
 
 
 /**

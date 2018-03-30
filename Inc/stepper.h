@@ -42,4 +42,7 @@ void stp_handler(void);
 void stp_requ(stpCmd_t cmd, uint32_t steps);
 stpState_t stp_getState(void);
 
+void stp_setPeriodStartRamp(uint16_t val);
+void stp_setPeriodEndRamp(uint16_t val);
+
 #endif /* STEPPER_H_ */

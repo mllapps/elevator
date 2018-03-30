@@ -126,6 +126,8 @@ void btn_handler(void)
     /* Keeps track of current (debounced) state */
     static uint8_t btnState = GPIO_PIN_SET;
 
+    //uint32_t stateChanged = ~SW1_IN_GPIO_Port->IDR ^ btnState;
+
     /* Check if button is high or low for the moment */
     if ( (btnData.currentState = HAL_GPIO_ReadPin(SW1_IN_GPIO_Port, SW1_IN_Pin) ) != btnState) {
         /* Button state is about to be changed, increase counter */

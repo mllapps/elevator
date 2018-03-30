@@ -105,7 +105,7 @@ int main(void)
   btn_init();
   ee_init();
   stp_init();
-  app_init();
+  app_init(); /* This must be the last init function call */
   /* USER CODE END 2 */
 
   /* Infinite loop */
