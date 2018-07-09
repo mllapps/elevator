@@ -14,6 +14,15 @@
 #include "tim.h"
 #include "time.h"
 
+typedef enum stpDecayMode_e {
+	STP_DECAY_MODE_FULLSTEP 		= 0,
+	STP_DECAY_MODE_HALFSTEP,
+	STP_DECAY_MODE_QUARTERSTEP,
+	STP_DECAY_MODE_EIGHTSTEP,
+	STP_DECAY_MODE_SIXTEENTHSTEP,
+} stpDecayMode_t;
+
+
 typedef struct stpData_s {
 
 	struct {
@@ -35,14 +44,14 @@ typedef struct stpData_s {
 		uint32_t val;
 		uint32_t min;
 		uint32_t max;
-		uint32_t steps;
+		uint32_t step;
 	} period;
 
 } stpData_t;
 
 static stpData_t stpData;
 
-void stp_setDecayMode(void);
+void stp_setDecayMode(stpDecayMode_t mode);
 
 stpState_t stp_getState(void)
 {
@@ -63,9 +72,9 @@ void stp_init(void)
 	stpData.period.val =
 	stpData.period.min = 65535;
 	stpData.period.max = stpData.period.min/2;
-	stpData.period.steps = 10;
+	stpData.period.step = 10;
 
-	stp_setDecayMode();
+	stp_setDecayMode(STP_DECAY_MODE_FULLSTEP);
 
 	HAL_GPIO_WritePin(MTR_nRESET_GPIO_Port, MTR_nRESET_Pin, GPIO_PIN_RESET);
 
@@ -191,12 +200,49 @@ void stp_handler(void)
 	}
 }
 
-void stp_setDecayMode(void)
+/**
+ * @brief Set the decay mode of the stepper driver
+ *
+ * MS1 MS2 MS3
+ * ===========
+ *  0 | 0 | 0 => full step
+ *  1 | 0 | 0 => half step
+ *  0 | 1 | 0 => quarter step
+ *  1 | 1 | 0 => eight step
+ *  1 | 1 | 1 => sixteenth step
+ */
+void stp_setDecayMode(stpDecayMode_t mode)
 {
 	/* Setup the decay mode */
 	HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
+
+	switch(mode)
+	{
+	case STP_DECAY_MODE_FULLSTEP:
+		break;
+	case STP_DECAY_MODE_HALFSTEP:
+		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
+		break;
+	case STP_DECAY_MODE_QUARTERSTEP:
+		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
+		break;
+	case STP_DECAY_MODE_EIGHTSTEP:
+		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
+		break;
+	case STP_DECAY_MODE_SIXTEENTHSTEP:
+		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_SET);
+		break;
+	default:
+		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
+		break;
+	}
 }
 
 void stp_requ(stpCmd_t cmd, uint32_t steps)
@@ -230,7 +276,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(stpData.fsm.state == STP_STATE_RAMP_UP) {
 			if(stpData.period.val > stpData.period.max) {
 
-				stpData.period.val -= stpData.period.steps;
+				stpData.period.val -= stpData.period.step;
 				__HAL_TIM_SET_AUTORELOAD(&htim3, stpData.period.val);
 			}else {
 				stpData.fsm.nxState = STP_STATE_RAMP_STABLE;
