@@ -70,7 +70,7 @@ void stp_init(void)
 	stpData.cmd.nxt = STP_CMD_NONE;
 
 	stpData.period.val =
-	stpData.period.min = 65535;
+	stpData.period.min = 35000;
 	stpData.period.max = stpData.period.min/2;
 	stpData.period.step = 10;
 
@@ -112,6 +112,7 @@ void stp_handler(void)
 
 		/* Disable the driver */
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
 
 		__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 
@@ -144,6 +145,7 @@ void stp_handler(void)
 
 		/* Enable motor driver  */
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_SET);
 
 		/* Enable the timer */
 		HAL_TIM_Base_Start(&htim3);
@@ -192,6 +194,8 @@ void stp_handler(void)
 	/* Go to next state if requested */
 	if(stpData.fsm.state != stpData.fsm.nxState) {
 		stpData.fsm.state = stpData.fsm.nxState;
+
+		printf("state changed to %d\n", stpData.fsm.state);
 	}
 
 	/* New command requested */

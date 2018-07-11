@@ -130,7 +130,7 @@ void app_init()
 	appData.floor.level1_2 = CFG_FLOOR_1_2_TICKS_DEFAULT;
 
 	stp_setPeriodStartRamp(65535);
-	stp_setPeriodEndRamp(40000);
+	stp_setPeriodEndRamp(45000);
 
 	HAL_FLASH_Lock();
 }
@@ -181,6 +181,10 @@ void app_stateIdle(void)
 
 		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_RESET);
 
+	   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
+
+
+#if 0
 	   if(appData.floor.current == APP_FLOOR_2) {
 		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
@@ -211,6 +215,7 @@ void app_stateIdle(void)
 		   appData.floor.current = APP_FLOOR_1;
 		   appData.floor.last = APP_FLOOR_0;
 	   }
+#endif
 
 	}else if(ret == BTN_PRESSED_LONG) {
 		btn_clearLongPress();
