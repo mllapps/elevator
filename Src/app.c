@@ -9,6 +9,7 @@
  *
  * @brief Application implementation
  */
+#include <mlog.h>
 #include "app.h"
 #include "tim.h"
 #include "eeprom.h"
@@ -88,15 +89,15 @@ void app_init()
 	UNUSED(ret);
 
 	appData.fsm.state =
-	appData.fsm.nxState = APP_STATE_IDLE;
+			appData.fsm.nxState = APP_STATE_IDLE;
 
 	appData.floor.current =
-	appData.floor.last = APP_FLOOR_2;
+			appData.floor.last = APP_FLOOR_2;
 
 	appData.pwmValue = 0;
 
 	appData.powerTimestamp =
-	appData.btnTimestamp = HAL_GetTick();
+			appData.btnTimestamp = HAL_GetTick();
 
 	HAL_FLASH_Unlock();
 
@@ -113,17 +114,17 @@ void app_init()
 
 	appData.powerOffTimeMs = 1000 * 60 * powerOff;
 
-//	/* */
-//	ret = ee_readVariableOrDefault(
-//			VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
-//			(uint16_t*)&appData.floor.level0_1,
-//			CFG_FLOOR_0_1_TICKS_DEFAULT);
-//
-//	/* */
-//	ret = ee_readVariableOrDefault(
-//			VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
-//			(uint16_t*)&appData.floor.level1_2,
-//			CFG_FLOOR_1_2_TICKS_DEFAULT);
+	//	/* */
+	//	ret = ee_readVariableOrDefault(
+	//			VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
+	//			(uint16_t*)&appData.floor.level0_1,
+	//			CFG_FLOOR_0_1_TICKS_DEFAULT);
+	//
+	//	/* */
+	//	ret = ee_readVariableOrDefault(
+	//			VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
+	//			(uint16_t*)&appData.floor.level1_2,
+	//			CFG_FLOOR_1_2_TICKS_DEFAULT);
 
 
 	appData.floor.level0_1 = CFG_FLOOR_0_1_TICKS_DEFAULT;
@@ -177,45 +178,47 @@ void app_stateIdle(void)
 	/* Perform button action */
 	if ( (ret = btn_isPressed() ) == BTN_PRESSED_SHORT)
 	{
-	   btn_clearAll();
+		btn_clearAll();
 
 		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_RESET);
-
-	   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
-
-
 #if 0
-	   if(appData.floor.current == APP_FLOOR_2) {
-		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
-
-		   /** @todo drive down to floor 1 */
-		   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
-
-		   appData.floor.current = APP_FLOOR_1;
-		   appData.floor.last = APP_FLOOR_2;
-	   }else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
-		   appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
-
-		   /** @todo drive down to floor 0 */
-		   stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level0_1);
-		   appData.floor.current = APP_FLOOR_0;
-		   appData.floor.last = APP_FLOOR_1;
-	   }else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
-		   appData.fsm.nxState = APP_STATE_DRIVING_UP;
-
-		   /** @todo drive up to floor 2 */
-		   stp_requ(STP_CMD_DRIVE_UP, appData.floor.level1_2);
-		   appData.floor.current = APP_FLOOR_2;
-		   appData.floor.last = APP_FLOOR_1;
-	   }else if(appData.floor.current == APP_FLOOR_0) {
-		   appData.fsm.nxState = APP_STATE_DRIVING_UP;
-
-		   /** @todo drive up to floor 1 */
-		   stp_requ(STP_CMD_DRIVE_UP, appData.floor.level0_1);
-		   appData.floor.current = APP_FLOOR_1;
-		   appData.floor.last = APP_FLOOR_0;
-	   }
+		stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
 #endif
+
+		if(appData.floor.current == APP_FLOOR_2) {
+			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
+
+			stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
+
+			appData.floor.current = APP_FLOOR_1;
+			appData.floor.last = APP_FLOOR_2;
+
+			mlog_info("drive down to floor 1\n");
+		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
+			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
+
+			stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level0_1);
+			appData.floor.current = APP_FLOOR_0;
+			appData.floor.last = APP_FLOOR_1;
+
+			mlog_info("drive down to floor 0\n");
+		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
+			appData.fsm.nxState = APP_STATE_DRIVING_UP;
+
+			stp_requ(STP_CMD_DRIVE_UP, appData.floor.level1_2);
+			appData.floor.current = APP_FLOOR_2;
+			appData.floor.last = APP_FLOOR_1;
+
+			mlog_info("drive up to floor 1\n");
+		}else if(appData.floor.current == APP_FLOOR_0) {
+			appData.fsm.nxState = APP_STATE_DRIVING_UP;
+
+			stp_requ(STP_CMD_DRIVE_UP, appData.floor.level0_1);
+			appData.floor.current = APP_FLOOR_1;
+			appData.floor.last = APP_FLOOR_0;
+
+			mlog_info("drive up to floor 2\n");
+		}
 
 	}else if(ret == BTN_PRESSED_LONG) {
 		btn_clearLongPress();
@@ -224,6 +227,7 @@ void app_stateIdle(void)
 	/* Power safe mode detected after N seconds */
 	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs) {
 		appData.powerTimestamp = curTimeStamp;
+		mlog_info("power safe enabled\n");
 	}
 }
 

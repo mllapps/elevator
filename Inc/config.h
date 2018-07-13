@@ -36,7 +36,7 @@
 /**
  * Number of steps from floor 0 to 1
  */
-#define CFG_FLOOR_0_1_TICKS_DEFAULT			(30000)
+#define CFG_FLOOR_0_1_TICKS_DEFAULT			(300)
 #define CFG_FLOOR_0_1_TICKS_MAX				(100000)
 #define CFG_FLOOR_0_1_TICKS_MIN				(1)
 #define CFG_FLOOR_0_1_TICKS_VADD			(0x3333)
@@ -45,7 +45,7 @@
 /**
  * Number of steps from floor 1 to 2
  */
-#define CFG_FLOOR_1_2_TICKS_DEFAULT			(30000)
+#define CFG_FLOOR_1_2_TICKS_DEFAULT			(300)
 #define CFG_FLOOR_1_2_TICKS_MAX				(100000)
 #define CFG_FLOOR_1_2_TICKS_MIN				(1)
 #define CFG_FLOOR_1_2_TICKS_VADD			(0x4444)
