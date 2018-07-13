@@ -42,7 +42,7 @@ MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 20K
 FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 60K
-PARAMS (x)      : ORIGIN = 0x08063DEC, LENGTH = 1K
+PARAMS (x)      : ORIGIN = 0x0800FC00, LENGTH = 1K
 }
 
 /* Define output sections */
@@ -75,10 +75,11 @@ SECTIONS
 
   .params :
   {
-  *(.params.VERSION_NUMBER)
-  *(.params.CRC)
-  *(.params.BUILD_ID)
-  *(.params*);
+  KEEP (*(.params.VERSION_NUMBER) )
+  KEEP (*(.params.BUILD_ID) )
+  KEEP (*(.params.BUILD_DATETIME) )
+  KEEP (*(.params.CRC) )
+  KEEP (*(.params*) );
   } > PARAMS
 
   /* Constant data goes into FLASH */
