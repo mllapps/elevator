@@ -48,6 +48,7 @@
 #include "stepper.h"
 #include "btn.h"
 #include "eeprom.h"
+#include "mlog.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -93,7 +94,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  printf("elevator init...\n");
+  mlog_info("elevator init...\n");
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

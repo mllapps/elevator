@@ -9,7 +9,6 @@
  *
  * @brief Application implementation
  */
-#include <mlog.h>
 #include "app.h"
 #include "tim.h"
 #include "eeprom.h"
@@ -17,10 +16,18 @@
 #include "config.h"
 #include "stepper.h"
 
+/* MLOG settings for the module app */
+#define MLOG_DEBUG			(0x01)
+#define MLOG_INFO			(0x02)
+#define MLOG_WARNING		(0x04)
+
+#include <mlog.h>
+
 typedef enum appState_e {
-	APP_STATE_IDLE			= 0,
-	APP_STATE_DRIVING_UP	= 1,
-	APP_STATE_DRIVING_DOWN	= 2
+	APP_STATE_INIT			= 0,
+	APP_STATE_IDLE			= 1,
+	APP_STATE_DRIVING_UP	= 2,
+	APP_STATE_DRIVING_DOWN	= 3
 } appState_t;
 
 typedef enum appFloor_e {
@@ -72,6 +79,7 @@ typedef struct appData_s {
 static appData_t appData;
 
 
+void app_stateInit(void);
 void app_stateIdle(void);
 void app_stateDriveUp(void);
 void app_stateDriveDown(void);
@@ -89,7 +97,7 @@ void app_init()
 	UNUSED(ret);
 
 	appData.fsm.state =
-			appData.fsm.nxState = APP_STATE_IDLE;
+			appData.fsm.nxState = APP_STATE_INIT;
 
 	appData.floor.current =
 			appData.floor.last = APP_FLOOR_2;
@@ -150,6 +158,9 @@ void app_handler()
 	}
 
 	switch(appData.fsm.state) {
+	case APP_STATE_INIT:
+		app_stateInit();
+		break;
 	case APP_STATE_IDLE:
 		app_stateIdle();
 		break;
@@ -170,6 +181,32 @@ void app_handler()
 
 /* Worflow functions --------------------------------------------------------*/
 
+/**
+ * @brief Initialize the application and elevator position
+ */
+void app_stateInit(void)
+{
+	static int entered = 0;
+
+	if(!entered)
+	{
+		entered = 1;
+		stp_requ(STP_CMD_DRIVE_UP, 8000);
+	}
+
+	/* If idle position arrived we want to stop the stepper and go to idle state */
+	if(HAL_GPIO_ReadPin(SW2_IN_GPIO_Port, SW2_IN_Pin) == GPIO_PIN_RESET)
+	{
+		stp_requStopFast();
+
+		mlog_debug("elevator is in idle position\n");
+		appData.fsm.nxState = APP_STATE_IDLE;
+	}
+}
+
+/**
+ * @brief Ready for driving to the next position
+ */
 void app_stateIdle(void)
 {
 	uint32_t curTimeStamp;
@@ -181,9 +218,6 @@ void app_stateIdle(void)
 		btn_clearAll();
 
 		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_RESET);
-#if 0
-		stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level1_2);
-#endif
 
 		if(appData.floor.current == APP_FLOOR_2) {
 			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
@@ -209,7 +243,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_2;
 			appData.floor.last = APP_FLOOR_1;
 
-			mlog_info("drive up to floor 1\n");
+			mlog_info("drive up to floor 2\n");
 		}else if(appData.floor.current == APP_FLOOR_0) {
 			appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
@@ -217,7 +251,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_0;
 
-			mlog_info("drive up to floor 2\n");
+			mlog_info("drive up to floor 1\n");
 		}
 
 	}else if(ret == BTN_PRESSED_LONG) {
@@ -231,6 +265,9 @@ void app_stateIdle(void)
 	}
 }
 
+/**
+ * @brief Driving to the next upper position
+ */
 void app_stateDriveUp(void)
 {
 	stpState_t state;
@@ -240,9 +277,20 @@ void app_stateDriveUp(void)
 
 		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
 	}
+
+	/* Stop the drive if idle position has been arrived */
+	if(HAL_GPIO_ReadPin(SW2_IN_GPIO_Port, SW2_IN_Pin) == GPIO_PIN_RESET)
+	{
+		stp_requStopFast();
+
+		mlog_debug("idle position arrived!\n");
+		appData.fsm.nxState = APP_STATE_IDLE;
+	}
 }
 
-
+/**
+ * @brief Driving to the next lower position
+ */
 void app_stateDriveDown(void)
 {
 	stpState_t state;

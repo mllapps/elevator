@@ -14,6 +14,12 @@
 #include "tim.h"
 #include "time.h"
 
+//#define MLOG_DEBUG			(0x01)
+#define MLOG_INFO			(0x02)
+#define MLOG_WARNING		(0x04)
+
+#include "mlog.h"
+
 typedef enum stpDecayMode_e {
 	STP_DECAY_MODE_FULLSTEP 		= 0,
 	STP_DECAY_MODE_HALFSTEP,
@@ -195,7 +201,7 @@ void stp_handler(void)
 	if(stpData.fsm.state != stpData.fsm.nxState) {
 		stpData.fsm.state = stpData.fsm.nxState;
 
-		printf("state changed to %d\n", stpData.fsm.state);
+		mlog_debug("state changed to %d\n", stpData.fsm.state);
 	}
 
 	/* New command requested */
@@ -255,6 +261,18 @@ void stp_requ(stpCmd_t cmd, uint32_t steps)
 
 	stpData.steps.cnt = 0;
 	stpData.steps.target = steps;
+}
+
+void stp_requStopFast(void)
+{
+	/* Disable the driver */
+	HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
+
+	stpData.cmd.nxt = STP_CMD_STOP;
+
+	stpData.steps.cnt = 0;
+	stpData.steps.target = 0;
 }
 
 void stp_setPeriodStartRamp(uint16_t val)

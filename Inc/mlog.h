@@ -14,10 +14,6 @@
 
 #include <stdio.h>
 
-#define MLOG_DEBUG			(0x01)
-#define MLOG_INFO			(0x02)
-#define MLOG_WARNING		(0x04)
-
 #define MLOG_ENABLED	(MLOG_DEBUG | MLOG_INFO | MLOG_WARNING)
 
 #if defined(MLOG_DEBUG)

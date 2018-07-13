@@ -42,7 +42,8 @@ MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 20K
 FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 60K
-PARAMS (x)      : ORIGIN = 0x0800FC00, LENGTH = 1K
+PARAMS (x)      : ORIGIN = 0x0800F000, LENGTH = 1K
+VEEPROM (rw)	: ORIGIN = 0x0800F400, LENGTH = 3K
 }
 
 /* Define output sections */
@@ -73,6 +74,7 @@ SECTIONS
     _etext = .;        /* define a global symbols at end of code */
   } >FLASH
 
+  /* Contant Parameters for Software Description */
   .params :
   {
   KEEP (*(.params.VERSION_NUMBER) )
@@ -82,6 +84,12 @@ SECTIONS
   KEEP (*(.params*) );
   } > PARAMS
 
+  /* Virtual EEPROM Data Section */
+  .veeprom :
+  {
+  KEEP (*(.veeprom*) );
+  } > VEEPROM
+  
   /* Constant data goes into FLASH */
   .rodata :
   {
