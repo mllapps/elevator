@@ -33,7 +33,7 @@ const uint32_t CRC APPINFO_CRC_ATTR = 0xFFFFFFFF;
 /**
  * Build number
  */
-const uint16_t BUILD_ID APPINFO_BUILDID_ATTR = 0;
+//const uint16_t BUILD_ID APPINFO_BUILDID_ATTR = 0;
 
 //const char BUILD_DATETIME[] APPINFO_BUILD_DATETIME_ATTR = __TIMESTAMP_ISO__;
 
