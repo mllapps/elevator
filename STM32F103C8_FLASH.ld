@@ -42,7 +42,7 @@ MEMORY
 {
 RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 20K
 FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 60K
-PARAMS (x)      : ORIGIN = 0x0800F000, LENGTH = 1K
+APPINFO (x)      : ORIGIN = 0x0800F000, LENGTH = 1K
 VEEPROM (rw)	: ORIGIN = 0x0800F400, LENGTH = 3K
 }
 
@@ -75,14 +75,14 @@ SECTIONS
   } >FLASH
 
   /* Contant Parameters for Software Description */
-  .params :
+  .appinfo :
   {
-  KEEP (*(.params.VERSION_NUMBER) )
-  KEEP (*(.params.BUILD_ID) )
-  KEEP (*(.params.BUILD_DATETIME) )
-  KEEP (*(.params.CRC) )
-  KEEP (*(.params*) );
-  } > PARAMS
+  KEEP (*(.appinfo.VERSION_NUMBER) )
+  KEEP (*(.appinfo.BUILD_ID) )
+  KEEP (*(.appinfo.BUILD_DATETIME) )
+  KEEP (*(.appinfo.CRC) )
+  KEEP (*(.appinfo*) );
+  } > APPINFO
 
   /* Virtual EEPROM Data Section */
   .veeprom :

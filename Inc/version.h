@@ -21,9 +21,10 @@
 #define APP_VERSION      APP_VERSION_CHECK(APP_MAJOR_VERSION, APP_MINOR_VERSION, APP_PATCH_VERSION)
 
 /* Application Information Attributes */
-#define APPINFO_VERSION_ATTR			__attribute__((section(".params.VERSION_NUMBER")))
-#define APPINFO_CRC_ATTR				__attribute__((section(".params.CRC")))
-#define APPINFO_BUILDID_ATTR			__attribute__((section(".params.BUILD_ID")))
-#define APPINFO_BUILD_DATETIME_ATTR		__attribute__((section(".params.BUILD_DATETIME")))
+#define APPINFO_VERSION_ATTR			__attribute__((section(".appinfo.VERSION_NUMBER")))
+#define APPINFO_CRC_ATTR				__attribute__((section(".appinfo.CRC")))
+#define APPINFO_BUILDID_ATTR			__attribute__((section(".appinfo.BUILD_ID")))
+#define APPINFO_BUILD_DATETIME_ATTR		__attribute__((section(".appinfo.BUILD_DATETIME")))
+#define APPINFO_BUILD_GITHASH_ATTR		__attribute__((section(".appinfo.BUILD_GITHASH")))
 
 #endif /* VERSION_H_ */
