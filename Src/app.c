@@ -191,7 +191,7 @@ void app_stateInit(void)
 	if(!entered)
 	{
 		entered = 1;
-		stp_requ(STP_CMD_DRIVE_UP, 8000);
+		stp_requ(STP_CMD_DRIVE_UP, 16000);
 	}
 
 	/* If idle position arrived we want to stop the stepper and go to idle state */

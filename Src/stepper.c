@@ -80,7 +80,7 @@ void stp_init(void)
 	stpData.period.max = stpData.period.min/2;
 	stpData.period.step = 10;
 
-	stp_setDecayMode(STP_DECAY_MODE_FULLSTEP);
+	stp_setDecayMode(STP_DECAY_MODE_EIGHTSTEP);
 
 	HAL_GPIO_WritePin(MTR_nRESET_GPIO_Port, MTR_nRESET_Pin, GPIO_PIN_RESET);
 

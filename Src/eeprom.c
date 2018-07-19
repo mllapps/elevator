@@ -643,6 +643,18 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
   return FlashStatus;
 }
 
+/**
+ * @brief Write variable if it is different from the last written value
+ *
+ * @param VirtualAddress
+ * @param Data
+ *
+ * @retval Success or error status:
+ *           - FLASH_COMPLETE: on success
+ *           - PAGE_FULL: if valid page is full
+ *           - NO_VALID_PAGE: if no valid page was found
+ *           - Flash error code: on write Flash error
+ */
 uint16_t ee_writeVariableIfDifferent(uint16_t VirtAddress, uint16_t Data)
 {
 	uint16_t dat;
