@@ -134,10 +134,6 @@ void app_init()
 			(uint16_t*)&appData.floor.level1_2,
 			CFG_FLOOR_1_2_TICKS_DEFAULT);
 
-
-//	appData.floor.level0_1 = CFG_FLOOR_0_1_TICKS_DEFAULT;
-//	appData.floor.level1_2 = CFG_FLOOR_1_2_TICKS_DEFAULT;
-
 	stp_setPeriodStartRamp(65535);
 	stp_setPeriodEndRamp(45000);
 
