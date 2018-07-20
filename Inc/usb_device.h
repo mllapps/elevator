@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : dma.h
-  * Description        : This file contains all the function prototypes for
-  *                      the dma.c file
+  * @file           : usb_device.h
+  * @version        : v2.0_Cube
+  * @brief          : Header for usb_device.c file.
   ******************************************************************************
   * This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -46,43 +46,69 @@
   *
   ******************************************************************************
   */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __dma_H
-#define __dma_H
+#ifndef __USB_DEVICE__H__
+#define __USB_DEVICE__H__
 
 #ifdef __cplusplus
  extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f1xx.h"
 #include "stm32f1xx_hal.h"
-#include "main.h"
+#include "usbd_def.h"
 
-/* DMA memory to memory transfer handles -------------------------------------*/
-extern void _Error_Handler(char*, int);
+/* USER CODE BEGIN INCLUDE */
 
-/* USER CODE BEGIN Includes */
+/* USER CODE END INCLUDE */
 
-/* USER CODE END Includes */
+/** @addtogroup USBD_OTG_DRIVER
+  * @{
+  */
 
-/* USER CODE BEGIN Private defines */
+/** @defgroup USBD_DEVICE USBD_DEVICE
+  * @brief Device file for Usb otg low level driver.
+  * @{
+  */
 
-/* USER CODE END Private defines */
+/** @defgroup USBD_DEVICE_Exported_Variables USBD_DEVICE_Exported_Variables
+  * @brief Public variables.
+  * @{
+  */
 
-void MX_DMA_Init(void);
+/** USB device core handle. */
+extern USBD_HandleTypeDef hUsbDeviceFS;
 
-/* USER CODE BEGIN Prototypes */
+/**
+  * @}
+  */
 
-/* USER CODE END Prototypes */
+/** @defgroup USBD_DEVICE_Exported_FunctionsPrototype USBD_DEVICE_Exported_FunctionsPrototype
+  * @brief Declaration of public functions for Usb device.
+  * @{
+  */
+
+/** USB Device initialization function. */
+void MX_USB_DEVICE_Init(void);
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __dma_H */
-
-/**
-  * @}
-  */
+#endif /* __USB_DEVICE__H__ */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
