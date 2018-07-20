@@ -94,7 +94,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  mlog_info("elevator init...\n");
+  mInfo("elevator init...\n");
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */

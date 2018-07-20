@@ -193,6 +193,8 @@ void stp_handler(void)
 		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
 		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
 //		stp_requStopFast();
+
+		mFatal("Invalid direction detected!\n");
 		break;
 	default:
 		break;
@@ -202,7 +204,7 @@ void stp_handler(void)
 	if(stpData.fsm.state != stpData.fsm.nxState) {
 		stpData.fsm.state = stpData.fsm.nxState;
 
-		mlog_debug("state changed to %d\n", stpData.fsm.state);
+		mDebug("state changed to %d\n", stpData.fsm.state);
 	}
 
 	/* New command requested */

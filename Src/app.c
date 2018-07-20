@@ -122,21 +122,21 @@ void app_init()
 
 	appData.powerOffTimeMs = 1000 * 60 * powerOff;
 
-	//	/* */
-	//	ret = ee_readVariableOrDefault(
-	//			VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
-	//			(uint16_t*)&appData.floor.level0_1,
-	//			CFG_FLOOR_0_1_TICKS_DEFAULT);
-	//
-	//	/* */
-	//	ret = ee_readVariableOrDefault(
-	//			VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
-	//			(uint16_t*)&appData.floor.level1_2,
-	//			CFG_FLOOR_1_2_TICKS_DEFAULT);
+	/* */
+	ret = ee_readVariableOrDefault(
+			VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
+			(uint16_t*)&appData.floor.level0_1,
+			CFG_FLOOR_0_1_TICKS_DEFAULT);
+
+	/* */
+	ret = ee_readVariableOrDefault(
+			VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
+			(uint16_t*)&appData.floor.level1_2,
+			CFG_FLOOR_1_2_TICKS_DEFAULT);
 
 
-	appData.floor.level0_1 = CFG_FLOOR_0_1_TICKS_DEFAULT;
-	appData.floor.level1_2 = CFG_FLOOR_1_2_TICKS_DEFAULT;
+//	appData.floor.level0_1 = CFG_FLOOR_0_1_TICKS_DEFAULT;
+//	appData.floor.level1_2 = CFG_FLOOR_1_2_TICKS_DEFAULT;
 
 	stp_setPeriodStartRamp(65535);
 	stp_setPeriodEndRamp(45000);
@@ -174,8 +174,21 @@ void app_handler()
 		break;
 	}
 
-	if(appData.fsm.state != appData.fsm.nxState) {
+	if(appData.fsm.state != appData.fsm.nxState)
+	{
 		appData.fsm.state = appData.fsm.nxState;
+	}
+
+	/* Power safe mode detected after N seconds */
+	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs)
+	{
+		appData.powerTimestamp = curTimeStamp;
+		appData.fsm.nxState = APP_STATE_IDLE;
+
+		appData.floor.current = APP_FLOOR_0;
+		appData.floor.last = APP_FLOOR_1;
+
+		mInfo("power safe enabled\n");
 	}
 }
 
@@ -199,7 +212,7 @@ void app_stateInit(void)
 	{
 		stp_requStopFast();
 
-		mlog_debug("elevator is in idle position\n");
+		mDebug("elevator is in idle position\n");
 		appData.fsm.nxState = APP_STATE_IDLE;
 	}
 }
@@ -227,7 +240,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_2;
 
-			mlog_info("drive down to floor 1\n");
+			mInfo("drive down to floor 1\n");
 		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
 			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
@@ -235,7 +248,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_0;
 			appData.floor.last = APP_FLOOR_1;
 
-			mlog_info("drive down to floor 0\n");
+			mInfo("drive down to floor 0\n");
 		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
 			appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
@@ -243,7 +256,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_2;
 			appData.floor.last = APP_FLOOR_1;
 
-			mlog_info("drive up to floor 2\n");
+			mInfo("drive up to floor 2\n");
 		}else if(appData.floor.current == APP_FLOOR_0) {
 			appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
@@ -251,17 +264,11 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_0;
 
-			mlog_info("drive up to floor 1\n");
+			mInfo("drive up to floor 1\n");
 		}
 
 	}else if(ret == BTN_PRESSED_LONG) {
 		btn_clearLongPress();
-	}
-
-	/* Power safe mode detected after N seconds */
-	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs) {
-		appData.powerTimestamp = curTimeStamp;
-		mlog_info("power safe enabled\n");
 	}
 }
 
@@ -283,7 +290,7 @@ void app_stateDriveUp(void)
 	{
 		stp_requStopFast();
 
-		mlog_debug("idle position arrived!\n");
+		mDebug("idle position arrived!\n");
 		appData.fsm.nxState = APP_STATE_IDLE;
 	}
 }

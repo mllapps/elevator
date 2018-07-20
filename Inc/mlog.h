@@ -17,21 +17,31 @@
 #define MLOG_ENABLED	(MLOG_DEBUG | MLOG_INFO | MLOG_WARNING)
 
 #if defined(MLOG_DEBUG)
-#define mlog_debug(f_, ...) 			printf((f_), ##__VA_ARGS__)
+#define mDebug(f_, ...) 			printf((f_), ##__VA_ARGS__)
 #else
-#define mlog_debug(f_, ...)				( (void)0 )
+#define mDebug(f_, ...)				( (void)0 )
 #endif
 
 #if defined (MLOG_INFO)
-#define mlog_info(f_, ...) 				printf((f_), ##__VA_ARGS__)
+#define mInfo(f_, ...) 				printf((f_), ##__VA_ARGS__)
 #else
-#define mlog_info(f_, ...)				( (void)0 )
+#define mInfo(f_, ...)				( (void)0 )
 #endif
 
 #if defined (MLOG_WARNING)
-#define mlog_warning(f_, ...) 			printf((f_), ##__VA_ARGS__)
+#define mWarning(f_, ...) 			printf((f_), ##__VA_ARGS__)
 #else
-#define mlog_info(f_, ...)				( (void)0 )
+#define mWarning(f_, ...)				( (void)0 )
+#endif
+
+/**
+ * @brief Write a fatal message to the io output and stop at infinite loop
+ *
+ * Fatal message are not able to disable because you should use this macro like a
+ * function at important risk situations to stop the application
+ */
+#ifndef mFatal
+#define mFatal(f_, ...) 			{printf((f_), ##__VA_ARGS__); while(1){}; }
 #endif
 
 #endif /* MLOG_H_ */
