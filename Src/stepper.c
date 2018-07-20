@@ -120,7 +120,7 @@ void stp_handler(void)
 //		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
 //		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
 
-		stp_requStopFast();
+//		stp_requStopFast();
 
 		__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 
@@ -190,8 +190,9 @@ void stp_handler(void)
 	case STP_STATE_FAULT:
 	case STP_STATE_FAULT_INVALID_DIR:
 		/* Disable the driver */
-//		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
-		stp_requStopFast();
+		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
+//		stp_requStopFast();
 		break;
 	default:
 		break;
@@ -270,8 +271,15 @@ void stp_requStopFast(void)
 	/** @todo Do not disable the driver ic because we need a break at the floor. */
 #if 0
 	HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
-#endif
 	HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
+#endif
+
+
+	/* Disable the timer */
+	HAL_TIM_Base_Stop(&htim3);
+
+	/* Disable the timer interrupt */
+	__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 
 	stpData.cmd.nxt = STP_CMD_STOP;
 
