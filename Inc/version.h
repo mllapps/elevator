@@ -37,6 +37,9 @@ typedef struct appInfo_s {
 	 */
 	uint8_t sectionVersion;
 
+	/**
+	 * Offset: 1
+	 */
 	struct {
 		uint8_t major;
 		uint8_t minor;
@@ -45,21 +48,36 @@ typedef struct appInfo_s {
 		uint8_t num;
 	} version;
 
+	/**
+	 * Offset 6
+	 */
 	uint16_t buildnum;
 
+	/**
+	 * Offset 8
+	 */
 	struct {
 		uint16_t year;
 		uint8_t month;
 		uint8_t day;
 	} buildDate;
 
+	/**
+	 * Offset 13
+	 */
 	uint32_t validEntry;
+	/**
+	 * Offset 17
+	 */
 	uint32_t product;
+	/**
+	 * Offset 21
+	 */
 	uint32_t customer;
 
 	struct {
-		uint8_t info;
-		uint32_t sum;
+		uint8_t type;
+		uint32_t entry;
 	} checksum;
 
 } appInfo_t;
