@@ -13,6 +13,7 @@
 #include "stepper.h"
 #include "tim.h"
 #include "time.h"
+#include "io.h"
 
 //#define MLOG_DEBUG			(0x01)
 #define MLOG_INFO			(0x02)
@@ -82,12 +83,11 @@ void stp_init(void)
 
 	stp_setDecayMode(STP_DECAY_MODE_EIGHTSTEP);
 
-	HAL_GPIO_WritePin(MTR_nRESET_GPIO_Port, MTR_nRESET_Pin, GPIO_PIN_RESET);
+	io_clrStpEnable();
 
-	HAL_GPIO_WritePin(MTR_nRESET_GPIO_Port, MTR_nRESET_Pin, GPIO_PIN_SET);
+	io_clrStpReset();
 
-	/* Disable sleep mode */
-	HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_SET);
+    io_clrStpSleep();
 
 	HAL_TIM_OC_Init(&htim3);
 	__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
@@ -102,11 +102,12 @@ void stp_deinit(void)
 	__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 
 	/* Disable the driver */
-	HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
+	io_clrStpEnable();
 
 	/* Enable sleep mode */
-	HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
+	io_setStpSleep();
 }
+
 
 void stp_handler(void)
 {
@@ -117,10 +118,10 @@ void stp_handler(void)
 		HAL_TIM_Base_Stop(&htim3);
 
 		/* Disable the driver */
-//		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
-//		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
-
-//		stp_requStopFast();
+#if 0
+		io_clrStpEnable();
+		io_setStpSleep();
+#endif /* 0 */
 
 		__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 
@@ -152,8 +153,8 @@ void stp_handler(void)
 //		stpData.period.max = 65535/2;
 
 		/* Enable motor driver  */
-		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_SET);
+		io_setStpEnable();
+		io_clrStpSleep();
 
 		/* Enable the timer */
 		HAL_TIM_Base_Start(&htim3);
@@ -190,11 +191,8 @@ void stp_handler(void)
 	case STP_STATE_FAULT:
 	case STP_STATE_FAULT_INVALID_DIR:
 		/* Disable the driver */
-		HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
-//		stp_requStopFast();
-
-		mFatal("Invalid direction detected!\n");
+	    io_clrStpEnable();
+	    io_setStpSleep();
 		break;
 	default:
 		break;
@@ -204,7 +202,7 @@ void stp_handler(void)
 	if(stpData.fsm.state != stpData.fsm.nxState) {
 		stpData.fsm.state = stpData.fsm.nxState;
 
-		mDebug("state changed to %d\n", stpData.fsm.state);
+		mlog_debug("state changed to %d\n", stpData.fsm.state);
 	}
 
 	/* New command requested */
@@ -227,33 +225,31 @@ void stp_handler(void)
 void stp_setDecayMode(stpDecayMode_t mode)
 {
 	/* Setup the decay mode */
-	HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
+    io_clrMtrMs1();
+    io_clrMtrMs2();
+    io_clrMtrMs3();
 
 	switch(mode)
 	{
 	case STP_DECAY_MODE_FULLSTEP:
 		break;
 	case STP_DECAY_MODE_HALFSTEP:
-		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
+	    io_setMtrMs1();
 		break;
 	case STP_DECAY_MODE_QUARTERSTEP:
-		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
+        io_setMtrMs2();
 		break;
 	case STP_DECAY_MODE_EIGHTSTEP:
-		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
+        io_setMtrMs1();
+        io_setMtrMs2();
 		break;
 	case STP_DECAY_MODE_SIXTEENTHSTEP:
-		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_SET);
+        io_setMtrMs1();
+        io_setMtrMs2();
+        io_setMtrMs3();
 		break;
 	default:
-		HAL_GPIO_WritePin(MTR_MS1_GPIO_Port, MTR_MS1_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
+	    /* Nothing to do */
 		break;
 	}
 }
@@ -268,13 +264,11 @@ void stp_requ(stpCmd_t cmd, uint32_t steps)
 
 void stp_requStopFast(void)
 {
-	/* Disable the driver */
-
-	/** @todo Do not disable the driver ic because we need a break at the floor. */
+    /* Disable the driver */
 #if 0
-	HAL_GPIO_WritePin(MTR_nENABLE_GPIO_Port, MTR_nENABLE_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(MTR_nSLEEP_GPIO_Port, MTR_nSLEEP_Pin, GPIO_PIN_RESET);
-#endif
+    io_clrStpEnable();
+    io_setStpSleep();
+#endif /* 0 */
 
 
 	/* Disable the timer */
@@ -289,6 +283,13 @@ void stp_requStopFast(void)
 	stpData.steps.target = 0;
 }
 
+/*------------------------------------------------------------------------------
+ * SETTER / GETTER
+ *--------------------------------------------------------------------------- */
+
+/**
+ *
+ */
 void stp_setPeriodStartRamp(uint16_t val)
 {
 	stpData.period.min = val;
@@ -322,7 +323,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		stpData.steps.cnt++;
 
 		/* Toggle the gpio pin */
-		HAL_GPIO_TogglePin(MTR_STEP_GPIO_Port, MTR_STEP_Pin);
+		io_tglStpStep();
 	}
 }
 

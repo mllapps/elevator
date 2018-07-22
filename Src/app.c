@@ -24,10 +24,14 @@
 #include <mlog.h>
 
 typedef enum appState_e {
-	APP_STATE_INIT			= 0,
-	APP_STATE_IDLE			= 1,
-	APP_STATE_DRIVING_UP	= 2,
-	APP_STATE_DRIVING_DOWN	= 3
+	APP_STATE_INIT			    = 0,
+	APP_STATE_IDLE			    = 1,
+	APP_STATE_DRIVING_UP	    = 2,
+	APP_STATE_DRIVING_DOWN	    = 3,
+
+	APP_STATE_SETUP_INIT        = 20,
+    APP_STATE_SETUP_FLOOR2_1    = 21,
+    APP_STATE_SETUP_FLOOR1_0    = 22,
 } appState_t;
 
 typedef enum appFloor_e {
@@ -83,6 +87,9 @@ void app_stateInit(void);
 void app_stateIdle(void);
 void app_stateDriveUp(void);
 void app_stateDriveDown(void);
+void app_stateSetupInit(void);
+void app_stateSetupFloor21(void);
+void app_stateSetupFloor10(void);
 
 /**
  * Initialize the application variables
@@ -138,6 +145,14 @@ void app_init()
 	stp_setPeriodEndRamp(45000);
 
 	HAL_FLASH_Lock();
+
+    /* If switch 1 enabled while power on it will enter the setup mode */
+    if(HAL_GPIO_ReadPin(SW1_IN_GPIO_Port, SW1_IN_Pin) == GPIO_PIN_RESET)
+    {
+        mDebug("Setup mode enabled\n");
+        appData.fsm.nxState = APP_STATE_SETUP_INIT;
+        return;
+    }
 }
 
 /**
@@ -166,6 +181,16 @@ void app_handler()
 	case APP_STATE_DRIVING_DOWN:
 		app_stateDriveDown();
 		break;
+
+	case APP_STATE_SETUP_INIT:
+	    app_stateSetupInit();
+	    break;
+	case APP_STATE_SETUP_FLOOR2_1:
+        app_stateSetupFloor21();
+	    break;
+	case APP_STATE_SETUP_FLOOR1_0:
+        app_stateSetupFloor10();
+	    break;
 	default:
 		break;
 	}
@@ -303,3 +328,21 @@ void app_stateDriveDown(void)
 		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
 	}
 }
+
+/* SETUP ---------------------------------------------------------------------*/
+
+void app_stateSetupInit()
+{
+    appData.fsm.nxState = APP_STATE_SETUP_FLOOR2_1;
+}
+
+void app_stateSetupFloor21(void)
+{
+    appData.fsm.nxState = APP_STATE_SETUP_FLOOR1_0;
+}
+
+void app_stateSetupFloor10(void)
+{
+    appData.fsm.nxState = APP_STATE_INIT;
+}
+
