@@ -17,19 +17,19 @@
 #define MLOG_ENABLED	(MLOG_DEBUG | MLOG_INFO | MLOG_WARNING)
 
 #if defined(MLOG_DEBUG)
-#define mDebug(f_, ...) 			printf((f_), ##__VA_ARGS__)
+#define mDebug(f_, ...) 			printf(("[dbg]" f_), ##__VA_ARGS__)
 #else
 #define mDebug(f_, ...)				( (void)0 )
 #endif
 
 #if defined (MLOG_INFO)
-#define mInfo(f_, ...) 				printf((f_), ##__VA_ARGS__)
+#define mInfo(f_, ...) 				printf(("[inf]" f_), ##__VA_ARGS__)
 #else
 #define mInfo(f_, ...)				( (void)0 )
 #endif
 
 #if defined (MLOG_WARNING)
-#define mWarning(f_, ...) 			printf((f_), ##__VA_ARGS__)
+#define mWarning(f_, ...) 			printf(("[warn]" f_), ##__VA_ARGS__)
 #else
 #define mWarning(f_, ...)				( (void)0 )
 #endif
@@ -41,7 +41,7 @@
  * function at important risk situations to stop the application
  */
 #ifndef mFatal
-#define mFatal(f_, ...) 			{printf((f_), ##__VA_ARGS__); while(1){}; }
+#define mFatal(f_, ...) 			{printf(("[fatal]" f_), ##__VA_ARGS__); while(1){}; }
 #endif
 
 #endif /* MLOG_H_ */

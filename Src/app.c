@@ -15,6 +15,7 @@
 #include "btn.h"
 #include "config.h"
 #include "stepper.h"
+#include "io.h"
 
 /* MLOG settings for the module app */
 #define MLOG_DEBUG			(0x01)
@@ -23,6 +24,9 @@
 
 #include <mlog.h>
 
+/**
+ * Application state enumeration type
+ */
 typedef enum appState_e {
 	APP_STATE_INIT			    = 0,
 	APP_STATE_IDLE			    = 1,
@@ -34,6 +38,9 @@ typedef enum appState_e {
     APP_STATE_SETUP_FLOOR1_0    = 22,
 } appState_t;
 
+/**
+ * Floor enumeration type
+ */
 typedef enum appFloor_e {
 	APP_FLOOR_0		= 0,
 	APP_FLOOR_1		= 1,
@@ -82,6 +89,7 @@ typedef struct appData_s {
  */
 static appData_t appData;
 
+/* Forward declarations ------------------------------------------------------*/
 
 void app_stateInit(void);
 void app_stateIdle(void);
@@ -213,7 +221,7 @@ void app_handler()
 	}
 }
 
-/* Worflow functions --------------------------------------------------------*/
+/* Workflow functions --------------------------------------------------------*/
 
 /**
  * @brief Initialize the application and elevator position
@@ -243,7 +251,6 @@ void app_stateInit(void)
  */
 void app_stateIdle(void)
 {
-	uint32_t curTimeStamp;
 	btnRc_t ret;
 
 	/* Perform button action */
@@ -251,7 +258,7 @@ void app_stateIdle(void)
 	{
 		btn_clearAll();
 
-		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_RESET);
+		io_setLd1();
 
 		if(appData.floor.current == APP_FLOOR_2) {
 			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
@@ -303,7 +310,7 @@ void app_stateDriveUp(void)
 	if( (state = stp_getState() ) == STP_STATE_ARRIVED) {
 		appData.fsm.nxState = APP_STATE_IDLE;
 
-		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
+		io_clrLd1();
 	}
 
 	/* Stop the drive if idle position has been arrived */
@@ -325,24 +332,85 @@ void app_stateDriveDown(void)
 
 	if( (state = stp_getState() ) == STP_STATE_ARRIVED) {
 		appData.fsm.nxState = APP_STATE_IDLE;
-		HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
+		io_clrLd1();
 	}
+
+
+    /* Stop the drive if idle position has been arrived. This should never be
+     * arrived but for security reasons we check this at this state also.
+     */
+    if(HAL_GPIO_ReadPin(SW2_IN_GPIO_Port, SW2_IN_Pin) == GPIO_PIN_RESET)
+    {
+        stp_requStopFast();
+
+        mFatal("[fatal] idle position arrived!\n");
+        appData.fsm.nxState = APP_STATE_IDLE;
+    }
 }
 
-/* SETUP ---------------------------------------------------------------------*/
+/* SETUP ASSISTANT -----------------------------------------------------------*/
 
+/**
+ * Setup state to initialize the setup assistant
+ */
 void app_stateSetupInit()
 {
     appData.fsm.nxState = APP_STATE_SETUP_FLOOR2_1;
 }
 
+/**
+ * Setup state to configure the step count from floor 2 to 1
+ */
 void app_stateSetupFloor21(void)
 {
-    appData.fsm.nxState = APP_STATE_SETUP_FLOOR1_0;
+    btnRc_t ret;
+    static uint16_t cnt = 0;
+    const uint16_t cntStep = 100;
+
+    /* Perform button action */
+    if ( (ret = btn_isPressed() ) == BTN_PRESSED_SHORT)
+    {
+        btn_clearAll();
+
+        io_setLd1();
+
+        cnt += cntStep;
+        stp_requ(STP_CMD_DRIVE_DOWN, cntStep);
+
+    }else if(ret == BTN_PRESSED_LONG) {
+        btn_clearLongPress();
+
+        ee_writeVariable(CFG_FLOOR_1_2_TICKS_VADDR, cnt);
+
+        appData.fsm.nxState = APP_STATE_SETUP_FLOOR1_0;
+    }
 }
 
+/**
+ * Setup state to configure the step count from floor 1 to 0
+ */
 void app_stateSetupFloor10(void)
 {
-    appData.fsm.nxState = APP_STATE_INIT;
+    btnRc_t ret;
+    static uint16_t cnt = 0;
+    const uint16_t cntStep = 100;
+
+    /* Perform button action */
+    if ( (ret = btn_isPressed() ) == BTN_PRESSED_SHORT)
+    {
+        btn_clearAll();
+
+        io_setLd1();
+
+        cnt += cntStep;
+        stp_requ(STP_CMD_DRIVE_DOWN, cntStep);
+
+    }else if(ret == BTN_PRESSED_LONG) {
+        btn_clearLongPress();
+
+        ee_writeVariable(CFG_FLOOR_0_1_TICKS_VADDR, cnt);
+
+        appData.fsm.nxState = APP_STATE_INIT;
+    }
 }
 

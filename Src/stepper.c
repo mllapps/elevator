@@ -59,12 +59,11 @@ typedef struct stpData_s {
 static stpData_t stpData;
 
 void stp_setDecayMode(stpDecayMode_t mode);
+stpState_t stp_getState(void);
 
-stpState_t stp_getState(void)
-{
-	return stpData.fsm.state;
-}
-
+/**
+ * @brief Initialize the motor driver and all module variables with default values
+ */
 void stp_init(void)
 {
 	stpData.fsm.state =
@@ -93,6 +92,9 @@ void stp_init(void)
 	__HAL_TIM_DISABLE_IT(&htim3, TIM_IT_UPDATE);
 }
 
+/**
+ * @brief (De)initialize the stepper driver and stop the motor
+ */
 void stp_deinit(void)
 {
 	/* Disable the timer */
@@ -108,7 +110,11 @@ void stp_deinit(void)
 	io_setStpSleep();
 }
 
-
+/**
+ * @brief Stepper motor handler
+ *
+ * Run this handler at your main loop.
+ */
 void stp_handler(void)
 {
 	switch(stpData.fsm.state){
@@ -150,7 +156,6 @@ void stp_handler(void)
 		stpData.steps.cnt = 0;
 
 		stpData.period.val = stpData.period.min;
-//		stpData.period.max = 65535/2;
 
 		/* Enable motor driver  */
 		io_setStpEnable();
@@ -202,7 +207,7 @@ void stp_handler(void)
 	if(stpData.fsm.state != stpData.fsm.nxState) {
 		stpData.fsm.state = stpData.fsm.nxState;
 
-		mlog_debug("state changed to %d\n", stpData.fsm.state);
+		mDebug("state changed to %d\n", stpData.fsm.state);
 	}
 
 	/* New command requested */
@@ -300,6 +305,14 @@ void stp_setPeriodEndRamp(uint16_t val)
 	stpData.period.max = val;
 }
 
+stpState_t stp_getState(void)
+{
+	return stpData.fsm.state;
+}
+
+/*------------------------------------------------------------------------------
+ * ISR
+ *--------------------------------------------------------------------------- */
 
 /**
  * Interrupt for the stepper motor PIN

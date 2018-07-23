@@ -36,7 +36,11 @@
 #define io_clrMtrMs2()          HAL_GPIO_WritePin(MTR_MS2_GPIO_Port, MTR_MS2_Pin, GPIO_PIN_RESET);
 
 #define io_setMtrMs3()          HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_SET);
-#define io_clrMtrMs4()          HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
+#define io_clrMtrMs3()          HAL_GPIO_WritePin(MTR_MS3_GPIO_Port, MTR_MS3_Pin, GPIO_PIN_RESET);
+
+#define io_setLd1()             HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_RESET);
+#define io_clrLd1()             HAL_GPIO_WritePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin, GPIO_PIN_SET);
+#define io_tglLd1()             HAL_GPIO_TogglePin(LD1_OUT_GPIO_Port, LD1_OUT_Pin);
 
 /*
  * Inputs
