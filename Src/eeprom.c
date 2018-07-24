@@ -338,11 +338,11 @@ uint16_t ee_readVariableOrDefault(uint16_t VirtAddress, uint16_t* Data, const ui
 
 	if( (ret = ee_readVariable(VirtAddress, Data) ) == 1) {
 		if ( (ret = ee_writeVariable(VirtAddress, dataDefault)) != 0) {
-			printf("failed to write default value at 0x%04x", VirtAddress);
+			printf("failed to write default value at 0x%04x\n", VirtAddress);
 		}
 
 		if( (ret = ee_readVariable(VirtAddress, Data) ) != 0) {
-			printf("failed to read default value at 0x%04x", VirtAddress);
+			printf("failed to read default value at 0x%04x\n", VirtAddress);
 		}
 	}
 

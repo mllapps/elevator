@@ -21,7 +21,7 @@
 #define CFG_LONGPRESS_TIME_DEFAULT			(1000)
 #define CFG_LONGPRESS_TIME_MAX				(5000)
 #define CFG_LONGPRESS_TIME_MIN				(500)
-#define CFG_LONGPRESS_TIME_VADD				(0x1111)
+#define CFG_LONGPRESS_TIME_VADDR			(0x1111)
 #define CFG_LONGPRESS_TIME_IDX				(0)
 
 /**
@@ -30,7 +30,7 @@
 #define CFG_POWER_OFF_DEFAULT				(30)
 #define CFG_POWER_OFF_MAX					(120)
 #define CFG_POWER_OFF_MIN					(1)
-#define CFG_POWER_OFF_VADD					(0x2222)
+#define CFG_POWER_OFF_VADDR					(0x2222)
 #define CFG_POWER_OFF_IDX					(1)
 
 /**

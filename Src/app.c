@@ -80,6 +80,8 @@ typedef struct appData_s {
 	struct {
 		appState_t state;
 		appState_t nxState;
+
+		uint8_t entered;
 	} fsm;
 
 } appData_t;
@@ -118,6 +120,7 @@ void app_init()
 			appData.floor.last = APP_FLOOR_2;
 
 	appData.pwmValue = 0;
+	appData.fsm.entered = 0;
 
 	appData.powerTimestamp =
 			appData.btnTimestamp = HAL_GetTick();
@@ -209,19 +212,20 @@ void app_handler()
 	if(appData.fsm.state != appData.fsm.nxState)
 	{
 		appData.fsm.state = appData.fsm.nxState;
+		appData.fsm.entered = 0;
 	}
 
-	/* Power safe mode detected after N seconds */
-	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs)
-	{
-		appData.powerTimestamp = curTimeStamp;
-		appData.fsm.nxState = APP_STATE_IDLE;
-
-		appData.floor.current = APP_FLOOR_0;
-		appData.floor.last = APP_FLOOR_1;
-
-		mInfo("power safe enabled\n");
-	}
+//	/* Power safe mode detected after N seconds */
+//	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs)
+//	{
+//		appData.powerTimestamp = curTimeStamp;
+//		appData.fsm.nxState = APP_STATE_IDLE;
+//
+//		appData.floor.current = APP_FLOOR_0;
+//		appData.floor.last = APP_FLOOR_1;
+//
+//		mInfo("power safe enabled\n");
+//	}
 }
 
 /* Workflow functions --------------------------------------------------------*/
@@ -231,12 +235,11 @@ void app_handler()
  */
 void app_stateInit(void)
 {
-	static int entered = 0;
-
-	if(!entered)
+	if(!appData.fsm.entered)
 	{
-		entered = 1;
+		appData.fsm.entered = 1;
 		stp_requ(STP_CMD_DRIVE_UP, 16000);
+		mDebug("elevator drive to idle position\n");
 	}
 
 	/* If idle position arrived we want to stop the stepper and go to idle
@@ -364,6 +367,8 @@ void app_stateSetupInit()
     /* If switch 1 enabled while power on it will enter the setup mode */
     if( io_isSw2() )
     {
+        stp_requStopFast();
+
         mDebug("Setup idle position arrived\n");
         appData.fsm.nxState = APP_STATE_SETUP_FLOOR2_1;
     }
@@ -391,7 +396,24 @@ void app_stateSetupFloor21(void)
     }else if(ret == BTN_PRESSED_LONG) {
         btn_clearLongPress();
 
-        ee_writeVariable(CFG_FLOOR_1_2_TICKS_VADDR, cnt);
+        HAL_FLASH_Unlock();
+
+        ee_writeVariableIfDifferent(VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX], cnt);
+
+        mDebug("Setup floor 12: %d\n", cnt);
+
+        /* */
+        ret = ee_readVariableOrDefault(
+                VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
+                (uint16_t*)&appData.floor.level1_2,
+                CFG_FLOOR_1_2_TICKS_DEFAULT);
+
+        HAL_FLASH_Lock();
+
+        mDebug("Setup floor 12: %d\n", appData.floor.level1_2);
+
+        /* wait until user release the button */
+        do{}while( io_isSw1() );
 
         appData.fsm.nxState = APP_STATE_SETUP_FLOOR1_0;
     }
@@ -419,7 +441,23 @@ void app_stateSetupFloor10(void)
     }else if(ret == BTN_PRESSED_LONG) {
         btn_clearLongPress();
 
-        ee_writeVariable(CFG_FLOOR_0_1_TICKS_VADDR, cnt);
+        HAL_FLASH_Unlock();
+
+        ee_writeVariable(VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX], cnt);
+
+        mDebug("Setup floor 01: %d\n", cnt);
+
+        ret = ee_readVariableOrDefault(
+                VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
+                (uint16_t*)&appData.floor.level0_1,
+                CFG_FLOOR_0_1_TICKS_DEFAULT);
+
+        HAL_FLASH_Lock();
+
+        mDebug("Setup floor 01: %d\n", appData.floor.level0_1);
+
+        /* wait until user release the button */
+        do{}while( io_isSw1() );
 
         appData.fsm.nxState = APP_STATE_INIT;
     }

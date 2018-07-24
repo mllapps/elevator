@@ -13,7 +13,9 @@
 
 /* Virtual address defined by the user: 0xFFFF value is prohibited */
 uint16_t VirtAddVarTab[] = {
-		CFG_LONGPRESS_TIME_VADD,
-		CFG_POWER_OFF_VADD,
+		CFG_LONGPRESS_TIME_VADDR,
+		CFG_POWER_OFF_VADDR,
+		CFG_FLOOR_0_1_TICKS_VADDR,
+		CFG_FLOOR_1_2_TICKS_VADDR,
 		0x0000	/* End of the list */
 };
