@@ -200,7 +200,23 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+/**
+ * @brief Trigger (re)enumeration of USB
+ *
+ * Pull down the USB DP pin to let think of master that device have been disconnect and
+ * force new device enumeration when calling MX_USB_DEVICE_Init().
+ */
+void USB_DEVICE_MasterHardReset(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = USB_DP_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(USB_DP_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_WritePin(USB_DP_GPIO_Port,USB_DP_Pin,0);
+    HAL_Delay(USB_DEVICE_MASTER_HARD_RESET_DELAY);
+}
 /* USER CODE END 4 */
 
 /**

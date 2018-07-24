@@ -94,7 +94,10 @@
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
+#define USB_DP_Pin GPIO_PIN_12
+#define USB_DP_GPIO_Port GPIOA
 
+#define USB_DEVICE_MASTER_HARD_RESET_DELAY  (1000)
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
