@@ -7,7 +7,10 @@
  * Passing on and copying of this document, use and communication of its
  * contents is not permitted without prior written authorization.
  *
- * @brief I/O helper macros
+ * @brief I/O Abstraction Layer
+ *
+ * Use this abstraction layer for easy change management on GPIO's and for
+ * better readable code.
  */
 
 #ifndef IO_H_

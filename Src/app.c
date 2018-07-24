@@ -155,7 +155,7 @@ void app_init()
 	HAL_FLASH_Lock();
 
     /* If switch 1 enabled while power on it will enter the setup mode */
-    if(HAL_GPIO_ReadPin(SW1_IN_GPIO_Port, SW1_IN_Pin) == GPIO_PIN_RESET)
+    if( io_isSw1() )
     {
         mDebug("Setup mode enabled\n");
         appData.fsm.nxState = APP_STATE_SETUP_INIT;
@@ -189,6 +189,9 @@ void app_handler()
 	case APP_STATE_DRIVING_DOWN:
 		app_stateDriveDown();
 		break;
+
+
+
 
 	case APP_STATE_SETUP_INIT:
 	    app_stateSetupInit();
@@ -236,8 +239,10 @@ void app_stateInit(void)
 		stp_requ(STP_CMD_DRIVE_UP, 16000);
 	}
 
-	/* If idle position arrived we want to stop the stepper and go to idle state */
-	if(HAL_GPIO_ReadPin(SW2_IN_GPIO_Port, SW2_IN_Pin) == GPIO_PIN_RESET)
+	/* If idle position arrived we want to stop the stepper and go to idle
+	 * state
+	 */
+	if( io_isSw2() )
 	{
 		stp_requStopFast();
 
@@ -355,7 +360,13 @@ void app_stateDriveDown(void)
  */
 void app_stateSetupInit()
 {
-    appData.fsm.nxState = APP_STATE_SETUP_FLOOR2_1;
+
+    /* If switch 1 enabled while power on it will enter the setup mode */
+    if( io_isSw2() )
+    {
+        mDebug("Setup idle position arrived\n");
+        appData.fsm.nxState = APP_STATE_SETUP_FLOOR2_1;
+    }
 }
 
 /**
