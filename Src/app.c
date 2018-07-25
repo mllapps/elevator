@@ -140,17 +140,21 @@ void app_init()
 
 	appData.powerOffTimeMs = 1000 * 60 * powerOff;
 
-	/* */
+	/* Load floor 01 position */
 	ret = ee_readVariableOrDefault(
 			VirtAddVarTab[CFG_FLOOR_0_1_TICKS_IDX],
 			(uint16_t*)&appData.floor.level0_1,
 			CFG_FLOOR_0_1_TICKS_DEFAULT);
 
-	/* */
+	mDebug("floor 01: %ld\n", appData.floor.level0_1);
+
+	/* Load floor 12 position */
 	ret = ee_readVariableOrDefault(
 			VirtAddVarTab[CFG_FLOOR_1_2_TICKS_IDX],
 			(uint16_t*)&appData.floor.level1_2,
 			CFG_FLOOR_1_2_TICKS_DEFAULT);
+
+	mDebug("floor 12: %ld\n", appData.floor.level1_2);
 
 	stp_setPeriodStartRamp(65535);
 	stp_setPeriodEndRamp(45000);
@@ -215,17 +219,24 @@ void app_handler()
 		appData.fsm.entered = 0;
 	}
 
-//	/* Power safe mode detected after N seconds */
-//	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs)
-//	{
-//		appData.powerTimestamp = curTimeStamp;
-//		appData.fsm.nxState = APP_STATE_IDLE;
-//
-//		appData.floor.current = APP_FLOOR_0;
-//		appData.floor.last = APP_FLOOR_1;
-//
-//		mInfo("power safe enabled\n");
-//	}
+	/** @todo Test the power off feature */
+#if 0
+	/* Power safe mode detected after N seconds */
+	if( (curTimeStamp = HAL_GetTick()) - appData.powerTimestamp >= appData.powerOffTimeMs)
+	{
+        mInfo("power safe enabled\n");
+
+        appData.powerTimestamp = curTimeStamp;
+		appData.fsm.nxState = APP_STATE_IDLE;
+
+		appData.floor.current = APP_FLOOR_0;
+		appData.floor.last = APP_FLOOR_1;
+
+		/* Go to sleep mode of the stepper driver */
+		io_clrStpEnable();
+		io_clrStpSleep();
+	}
+#endif /* 0 */
 }
 
 /* Workflow functions --------------------------------------------------------*/
@@ -344,6 +355,8 @@ void app_stateDriveDown(void)
 	}
 
 
+	/** @todo Before this is possible the elevator must leave the idle position */
+#if 0
     /* Stop the drive if idle position has been arrived. This should never be
      * arrived but for security reasons we check this at this state also.
      */
@@ -354,6 +367,7 @@ void app_stateDriveDown(void)
         mFatal("[fatal] idle position arrived!\n");
         appData.fsm.nxState = APP_STATE_IDLE;
     }
+#endif /* 0 */
 }
 
 /* SETUP ASSISTANT -----------------------------------------------------------*/

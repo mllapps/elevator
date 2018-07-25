@@ -14,7 +14,7 @@
 
 #define APP_MAJOR_VERSION 	(1)
 #define APP_MINOR_VERSION 	(0)
-#define APP_PATCH_VERSION 	(0)
+#define APP_PATCH_VERSION 	(1)
 
 #define APP_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
