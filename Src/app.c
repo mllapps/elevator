@@ -287,7 +287,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_2;
 
-			mInfo("drive down to floor 1\n");
+			mInfo("drive to floor 1\n");
 		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
 			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
@@ -295,7 +295,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_0;
 			appData.floor.last = APP_FLOOR_1;
 
-			mInfo("drive down to floor 0\n");
+			mInfo("drive to floor 0\n");
 		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
 			appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
@@ -303,7 +303,7 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_2;
 			appData.floor.last = APP_FLOOR_1;
 
-			mInfo("drive up to floor 2\n");
+			mInfo("drive to floor 2\n");
 		}else if(appData.floor.current == APP_FLOOR_0) {
 			appData.fsm.nxState = APP_STATE_DRIVING_UP;
 
@@ -311,11 +311,71 @@ void app_stateIdle(void)
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_0;
 
-			mInfo("drive up to floor 1\n");
+			mInfo("drive to floor 1\n");
 		}
 
 	}else if(ret == BTN_PRESSED_LONG) {
 		btn_clearLongPress();
+
+		switch(appData.floor.current)
+		{
+		case APP_FLOOR_0:
+            appData.fsm.nxState = APP_STATE_DRIVING_UP;
+
+            stp_requ(STP_CMD_DRIVE_UP,
+                    ( appData.floor.level0_1 + appData.floor.level1_2 )
+                    );
+            appData.floor.current = APP_FLOOR_2;
+            appData.floor.last = APP_FLOOR_1;
+
+            mInfo("drive to floor 2\n");
+		    break;
+		case APP_FLOOR_1:
+		    if(appData.floor.last == APP_FLOOR_0)
+		    {
+	            appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
+
+	            stp_requ(STP_CMD_DRIVE_DOWN,
+	                    ( appData.floor.level0_1 )
+	                    );
+	            appData.floor.current = APP_FLOOR_0;
+	            appData.floor.last = APP_FLOOR_1;
+
+	            mInfo("drive to floor 0\n");
+
+		    }else if(appData.floor.last == APP_FLOOR_2)
+		    {
+	            appData.fsm.nxState = APP_STATE_DRIVING_UP;
+
+	            stp_requ(STP_CMD_DRIVE_UP,
+	                    ( appData.floor.level1_2 )
+	                    );
+	            appData.floor.current = APP_FLOOR_2;
+	            appData.floor.last = APP_FLOOR_1;
+
+	            mInfo("drive to floor 2\n");
+
+		    }else
+		    {
+		        mWarning("Invalid floor state detected!\n");
+		    }
+		    break;
+		case APP_FLOOR_2:
+            appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
+
+            stp_requ(STP_CMD_DRIVE_DOWN,
+                    ( appData.floor.level0_1 + appData.floor.level1_2)
+                    );
+            appData.floor.current = APP_FLOOR_0;
+            appData.floor.last = APP_FLOOR_1;
+
+            mInfo("drive to floor 0\n");
+		    break;
+
+		default:
+            mWarning("Invalid floor state detected!\n");
+		    break;
+		}
 	}
 }
 
