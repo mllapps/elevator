@@ -12,13 +12,25 @@
 #ifndef VERSION_H_
 #define VERSION_H_
 
-#define APP_MAJOR_VERSION 	(1)
-#define APP_MINOR_VERSION 	(0)
-#define APP_PATCH_VERSION 	(1)
+#define APP_MAJOR_VERSION   (1)
+#define APP_MINOR_VERSION   (0)
+#define APP_PATCH_VERSION   (1)
 
+#define APP_EXT_VERSION   ("alpha")
+
+#define APP_VALID_ENTRY     (0x12345678)
+
+#define APP_PRODUCT_ID      (0x00000001)
+#define APP_CUSTOMER_ID     (0x00000001)
+
+
+/* Helper macros -------------------------------------------------------------*/
 #define APP_VERSION_CHECK(major, minor, patch) ((major<<16)|(minor<<8)|(patch))
 
 #define APP_VERSION      APP_VERSION_CHECK(APP_MAJOR_VERSION, APP_MINOR_VERSION, APP_PATCH_VERSION)
+
+/* Public constants ----------------------------------------------------------*/
+#define APPINFO_EXT_VERSION_LENGTH_MAX  (10)
 
 /* Application Information Attributes */
 #define APPINFO_VERSION_ATTR			__attribute__((section(".appinfo.VERSION_NUMBER")))
@@ -44,17 +56,12 @@ typedef struct appInfo_s {
 		uint8_t major;
 		uint8_t minor;
 		uint8_t patch;
-		uint8_t ext;
-		uint8_t num;
+		uint8_t ext[APPINFO_EXT_VERSION_LENGTH_MAX];
+		uint16_t buildnum;
 	} version;
 
 	/**
-	 * Offset 6
-	 */
-	uint16_t buildnum;
-
-	/**
-	 * Offset 8
+	 * Offset 16
 	 */
 	struct {
 		uint16_t year;
@@ -63,18 +70,21 @@ typedef struct appInfo_s {
 	} buildDate;
 
 	/**
-	 * Offset 13
+	 * Offset 20
 	 */
 	uint32_t validEntry;
 	/**
-	 * Offset 17
+	 * Offset 24
 	 */
 	uint32_t product;
 	/**
-	 * Offset 21
+	 * Offset 28
 	 */
 	uint32_t customer;
 
+	/**
+	 * Offset 32
+	 */
 	struct {
 		uint8_t type;
 		uint32_t entry;

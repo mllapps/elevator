@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "version.h"
+#include "versioncc.h"
 
 /**
  * Helper macro to generate version number integer representation
@@ -38,3 +39,23 @@ const uint32_t CRC APPINFO_CRC_ATTR = 0xFFFFFFFF;
 //const char BUILD_DATETIME[] APPINFO_BUILD_DATETIME_ATTR = __TIMESTAMP_ISO__;
 
 const char BUILD_GITCHECKSUM[] APPINFO_BUILD_GITHASH_ATTR = "";
+
+
+appInfo_t appInfo = {
+        .sectionVersion     = 1,
+
+        .version.major      = APP_MAJOR_VERSION,
+        .version.minor      = APP_MINOR_VERSION,
+        .version.patch      = APP_PATCH_VERSION,
+        .version.ext        = APP_EXT_VERSION,
+        .version.buildnum   = __BUILD_NUMBER__,
+
+        .buildDate.year     = __BUILD_DATEYEAR__,
+        .buildDate.month    = __BUILD_DATEMONTH__,
+        .buildDate.day      = __BUILD_DATEDAY__,
+
+        .validEntry         = APP_VALID_ENTRY,
+
+        .product            = APP_PRODUCT_ID,
+        .customer           = APP_CUSTOMER_ID,
+};
