@@ -265,6 +265,13 @@ void stp_requ(stpCmd_t cmd, uint32_t steps)
 
 	stpData.steps.cnt = 0;
 	stpData.steps.target = steps;
+
+	/* Reset the state machine if arrived */
+	if(stpData.fsm.state == STP_STATE_ARRIVED)
+	{
+	    stpData.fsm.nxState =
+	    stpData.fsm.state = STP_STATE_IDLE;
+	}
 }
 
 void stp_requStopFast(void)

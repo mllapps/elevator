@@ -146,7 +146,7 @@ void app_init()
 			(uint16_t*)&appData.floor.level0_1,
 			CFG_FLOOR_0_1_TICKS_DEFAULT);
 
-	mDebug("floor 01: %ld\n", appData.floor.level0_1);
+	mDebug("Load setup for floor 01: %ld\n", appData.floor.level0_1);
 
 	/* Load floor 12 position */
 	ret = ee_readVariableOrDefault(
@@ -154,7 +154,7 @@ void app_init()
 			(uint16_t*)&appData.floor.level1_2,
 			CFG_FLOOR_1_2_TICKS_DEFAULT);
 
-	mDebug("floor 12: %ld\n", appData.floor.level1_2);
+	mDebug("Load setup for floor 12: %ld\n", appData.floor.level1_2);
 
 	stp_setPeriodStartRamp(65535);
 	stp_setPeriodEndRamp(45000);
@@ -249,7 +249,7 @@ void app_stateInit(void)
 	if(!appData.fsm.entered)
 	{
 		appData.fsm.entered = 1;
-		stp_requ(STP_CMD_DRIVE_UP, 16000);
+		stp_requ(STP_CMD_DRIVE_UP, 20000);
 		mDebug("elevator drive to idle position\n");
 	}
 
