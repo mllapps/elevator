@@ -39,6 +39,9 @@
 #define APPINFO_BUILD_DATETIME_ATTR		__attribute__((section(".appinfo.BUILD_DATETIME")))
 #define APPINFO_BUILD_GITHASH_ATTR		__attribute__((section(".appinfo.BUILD_GITHASH")))
 
+/**
+ * Application Informations Section (AIS) with 64 bytes
+ */
 typedef struct appInfo_s {
 	/**
 	 * Structure version information
@@ -84,11 +87,27 @@ typedef struct appInfo_s {
 
 	/**
 	 * Offset 32
+	 *
+	 * Reserved for future use.
 	 */
-	struct {
-		uint8_t type;
-		uint32_t entry;
-	} checksum;
+	uint8_t reserved[27];
+
+	/**
+	 * Offset 59
+	 */
+    uint8_t type;
+
+	/**
+	 * Offset 60
+	 */
+	union {
+	    struct {
+	        uint16_t reserved;
+	        uint16_t checksum16bit;
+	    };
+
+        uint32_t checksum32bit;
+	};
 
 } appInfo_t;
 

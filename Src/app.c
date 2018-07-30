@@ -111,6 +111,23 @@ void app_init()
 	uint16_t ret = 0;
 	uint16_t powerOff;
 
+    /** @todo intialize IWDG */
+
+#ifdef DEBUG
+    /*
+     * Development purpose: Set breakpoint to recognize watchdog reset.
+     *
+     * Check if the system has resumed from IWDG reset
+     */
+    if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST) != RESET)
+    {
+        /* IWDGRST flag set */
+        /* Clear reset flags */
+        __HAL_RCC_CLEAR_RESET_FLAGS();
+        //app_setStatus(APP_STATUS_RESET);
+    }
+#endif
+
 	UNUSED(ret);
 
 	appData.fsm.state =
@@ -176,6 +193,8 @@ void app_init()
 void app_handler()
 {
 	uint32_t curTimeStamp;
+
+	/** @todo Refresh IWDG */
 
 	/* Trigger the button handler */
 	if( (curTimeStamp = HAL_GetTick()) - appData.btnTimestamp >= APP_BUTTON_TRIGGER_INTERVAL) {
