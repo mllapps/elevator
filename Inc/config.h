@@ -51,6 +51,15 @@
 #define CFG_FLOOR_1_2_TICKS_VADDR			(0x4444)
 #define CFG_FLOOR_1_2_TICKS_IDX				(3)
 
+/**
+ * Number of milliseconds until the floor 2 must be arrived
+ */
+#define CFG_TIMEOUT_FLOOR2_ARRIVE_DEFAULT   (8500)
+#define CFG_TIMEOUT_FLOOR2_ARRIVE_MAX       (10000)
+#define CFG_TIMEOUT_FLOOR2_ARRIVE_MIN       (100)
+#define CFG_TIMEOUT_FLOOR2_ARRIVE_VADDR     (0x5555)
+#define CFG_TIMEOUT_FLOOR2_ARRIVE_IDX       (4)
+
 
 extern uint16_t VirtAddVarTab[];
 

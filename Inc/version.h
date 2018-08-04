@@ -102,7 +102,7 @@ typedef struct appInfo_s {
 	 */
 	union {
 	    struct {
-	        uint16_t reserved;
+	        uint16_t checksumReserved;
 	        uint16_t checksum16bit;
 	    };
 

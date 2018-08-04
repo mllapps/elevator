@@ -17,5 +17,6 @@ uint16_t VirtAddVarTab[] = {
 		CFG_POWER_OFF_VADDR,
 		CFG_FLOOR_0_1_TICKS_VADDR,
 		CFG_FLOOR_1_2_TICKS_VADDR,
+		CFG_TIMEOUT_FLOOR2_ARRIVE_VADDR,
 		0x0000	/* End of the list */
 };

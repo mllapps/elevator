@@ -47,27 +47,44 @@ typedef enum appFloor_e {
 	APP_FLOOR_2		= 2,
 } appFloor_t;
 
+typedef enum appDrive_e {
+    APP_DRIVE_FLOOR0,
+    APP_DRIVE_FLOOR1,
+    APP_DRIVE_FLOOR2,
+} appDrive_t;
+
 typedef struct appData_s {
 	/**
 	 * Light intensity
 	 */
 	uint16_t pwmValue;
 	/**
-	 * Power off value in milliseconds for the
+	 * Number of milliseconds until the sleep mode will be activated
 	 */
 	uint32_t powerOffTimeMs;
 	/**
 	 * Number of milliseconds for button trigger interval
 	 */
 	uint32_t btnTimestamp;
-	/**
-	 * Number of milliseconds until the LED turns off
-	 */
-	uint32_t powerTimestamp;
+
+	/* Runtime variables */
+	struct {
+	    /**
+	     * Power on timestamp
+	     */
+	    uint32_t powerOn;
+	    /**
+	     * Start of a new drive
+	     */
+	    uint32_t driveStarted;
+	}timestamps;
+
 	/**
 	 * Number of milliseconds for long press detection
 	 */
 	uint32_t longpressTime;
+
+	uint32_t timeoutFloor2;
 
 	struct {
 		appFloor_t current;
@@ -75,6 +92,8 @@ typedef struct appData_s {
 
 		uint32_t level1_2;
 		uint32_t level0_1;
+
+		appDrive_t drive;
 	} floor;
 
 	struct {
@@ -135,11 +154,12 @@ void app_init()
 
 	appData.floor.current =
 			appData.floor.last = APP_FLOOR_2;
+	appData.floor.drive = APP_DRIVE_FLOOR2;
 
 	appData.pwmValue = 0;
 	appData.fsm.entered = 0;
 
-	appData.powerTimestamp =
+	appData.timestamps.powerOn =
 			appData.btnTimestamp = HAL_GetTick();
 
 	HAL_FLASH_Unlock();
@@ -172,6 +192,15 @@ void app_init()
 			CFG_FLOOR_1_2_TICKS_DEFAULT);
 
 	mDebug("Load setup for floor 12: %ld\n", appData.floor.level1_2);
+
+
+    /* Load floor 12 position */
+    ret = ee_readVariableOrDefault(
+            VirtAddVarTab[CFG_TIMEOUT_FLOOR2_ARRIVE_IDX],
+            (uint16_t*)&appData.timeoutFloor2,
+            CFG_TIMEOUT_FLOOR2_ARRIVE_DEFAULT);
+
+    mDebug("Load setup for floor 12: %ld\n", appData.floor.level1_2);
 
 	stp_setPeriodStartRamp(65535);
 	stp_setPeriodEndRamp(45000);
@@ -298,6 +327,9 @@ void app_stateIdle(void)
 
 		io_setLd1();
 
+		/* Update the value for the security timeout */
+		appData.timestamps.driveStarted = HAL_GetTick();
+
 		if(appData.floor.current == APP_FLOOR_2) {
 			appData.fsm.nxState = APP_STATE_DRIVING_DOWN;
 
@@ -305,6 +337,7 @@ void app_stateIdle(void)
 
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_2;
+			appData.floor.drive = APP_DRIVE_FLOOR1;
 
 			mInfo("drive to floor 1\n");
 		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_2) {
@@ -313,6 +346,7 @@ void app_stateIdle(void)
 			stp_requ(STP_CMD_DRIVE_DOWN, appData.floor.level0_1);
 			appData.floor.current = APP_FLOOR_0;
 			appData.floor.last = APP_FLOOR_1;
+			appData.floor.drive = APP_DRIVE_FLOOR0;
 
 			mInfo("drive to floor 0\n");
 		}else if(appData.floor.current == APP_FLOOR_1 && appData.floor.last == APP_FLOOR_0) {
@@ -321,6 +355,7 @@ void app_stateIdle(void)
 			stp_requ(STP_CMD_DRIVE_UP, appData.floor.level1_2);
 			appData.floor.current = APP_FLOOR_2;
 			appData.floor.last = APP_FLOOR_1;
+			appData.floor.drive = APP_DRIVE_FLOOR2;
 
 			mInfo("drive to floor 2\n");
 		}else if(appData.floor.current == APP_FLOOR_0) {
@@ -329,12 +364,16 @@ void app_stateIdle(void)
 			stp_requ(STP_CMD_DRIVE_UP, appData.floor.level0_1);
 			appData.floor.current = APP_FLOOR_1;
 			appData.floor.last = APP_FLOOR_0;
+			appData.floor.drive = APP_DRIVE_FLOOR1;
 
 			mInfo("drive to floor 1\n");
 		}
 
 	}else if(ret == BTN_PRESSED_LONG) {
 		btn_clearLongPress();
+
+        /* Update the value for the security timeout */
+        appData.timestamps.driveStarted = HAL_GetTick();
 
 		switch(appData.floor.current)
 		{
@@ -346,6 +385,7 @@ void app_stateIdle(void)
                     );
             appData.floor.current = APP_FLOOR_2;
             appData.floor.last = APP_FLOOR_1;
+            appData.floor.drive = APP_DRIVE_FLOOR2;
 
             mInfo("drive to floor 2\n");
 		    break;
@@ -359,6 +399,7 @@ void app_stateIdle(void)
 	                    );
 	            appData.floor.current = APP_FLOOR_0;
 	            appData.floor.last = APP_FLOOR_1;
+	            appData.floor.drive = APP_DRIVE_FLOOR0;
 
 	            mInfo("drive to floor 0\n");
 
@@ -371,6 +412,7 @@ void app_stateIdle(void)
 	                    );
 	            appData.floor.current = APP_FLOOR_2;
 	            appData.floor.last = APP_FLOOR_1;
+	            appData.floor.drive = APP_DRIVE_FLOOR2;
 
 	            mInfo("drive to floor 2\n");
 
@@ -387,6 +429,7 @@ void app_stateIdle(void)
                     );
             appData.floor.current = APP_FLOOR_0;
             appData.floor.last = APP_FLOOR_1;
+            appData.floor.drive = APP_DRIVE_FLOOR0;
 
             mInfo("drive to floor 0\n");
 		    break;
@@ -404,19 +447,30 @@ void app_stateIdle(void)
 void app_stateDriveUp(void)
 {
 	stpState_t state;
+	uint32_t curTimeStamp;
 
+	/* Check if the motor stops */
 	if( (state = stp_getState() ) == STP_STATE_ARRIVED) {
-		appData.fsm.nxState = APP_STATE_IDLE;
+	    if(appData.floor.drive == APP_DRIVE_FLOOR2 && !io_isSw2())
+	    {
+	        stp_requ(STP_CMD_DRIVE_UP, 500);
+	        mWarning("elevator did not arrive the idle position\n");
+	    }else {
+	        appData.fsm.nxState = APP_STATE_IDLE;
 
-		io_clrLd1();
+	        io_clrLd1();
+	    }
 	}
 
-	/* Stop the drive if idle position has been arrived */
-	if(HAL_GPIO_ReadPin(SW2_IN_GPIO_Port, SW2_IN_Pin) == GPIO_PIN_RESET)
+	/* Stop the drive if idle position has been arrived or timeout occurred */
+	if(
+	        ( io_isSw2() ) ||
+            ((curTimeStamp = HAL_GetTick()) - appData.timestamps.driveStarted >= appData.timeoutFloor2)
+            )
 	{
 		stp_requStopFast();
 
-		mDebug("idle position arrived!\n");
+		mDebug("idle position arrived or timeout occurred!\n");
 		appData.fsm.nxState = APP_STATE_IDLE;
 	}
 }
@@ -503,7 +557,7 @@ void app_stateSetupFloor21(void)
 
         HAL_FLASH_Lock();
 
-        mDebug("Setup floor 12: %d\n", appData.floor.level1_2);
+        mDebug("Setup floor 12: %lu\n", appData.floor.level1_2);
 
         /* wait until user release the button */
         do{}while( io_isSw1() );
@@ -547,7 +601,7 @@ void app_stateSetupFloor10(void)
 
         HAL_FLASH_Lock();
 
-        mDebug("Setup floor 01: %d\n", appData.floor.level0_1);
+        mDebug("Setup floor 01: %lu\n", appData.floor.level0_1);
 
         /* wait until user release the button */
         do{}while( io_isSw1() );
